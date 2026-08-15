@@ -6,6 +6,7 @@ import { generateAccessToken } from "../utils/token.js";
 import { generateRefreshToken } from "../utils/token.js";
 import cookieParser from "cookie-parser";
 import { setAuthCookies } from "../utils/cookies.js";
+
 export const registerUser = async (req, res) => {
  const {name ,email,password}= req.body;
 if(!name ||!email||!password){
