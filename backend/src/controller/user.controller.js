@@ -7,6 +7,103 @@ import { generateRefreshToken } from "../utils/token.js";
 import cookieParser from "cookie-parser";
 import { setAuthCookies } from "../utils/cookies.js";
 
+export const refreshTokenController = async(req,res) => {
+const refreshToken = req.cookies?.refreshToken;
+if(!refreshToken){
+    throw new ApiError(401, "Refresh token missing");
+}
+    const decoded = jwt.verify(
+      refreshToken,
+  process.env.REFRESH_TOKEN_SECRET
+    )
+  const sessionResult = await pool.query(
+  `
+  SELECT
+    id,
+    user_id,
+    refresh_token_hash,
+    expires_at,
+    revoked_at
+  FROM sessions
+  WHERE id = $1
+    AND user_id = $2
+  `,
+  [decoded.sessionId, decoded.userId]
+);
+
+const session = sessionResult.rows[0];
+
+if (!session) {
+  throw new ApiError(401, "Invalid session");
+}
+
+if (session.revoked_at) {
+  throw new ApiError(401, "Session revoked");
+}
+const isValidRefreshToken = await bcrypt.compare(
+  refreshToken,
+  session.refresh_token_hash
+);
+
+if (!isValidRefreshToken) {
+  throw new ApiError(401, "Invalid refresh token");
+}
+const userResult = await pool.query(
+  `
+  SELECT id, name, email
+  FROM users
+  WHERE id = $1
+  `,
+  [decoded.userId]
+);
+
+const user = userResult.rows[0];
+
+if (!user) {
+  throw new ApiError(401, "User not found");
+}
+const newAccessToken = generateAccessToken(user);
+
+res.cookie("accessToken", newAccessToken, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 15 * 60 * 1000,
+});
+
+return res.status(200).json({
+  success: true,
+  message: "Access token refreshed",
+});
+
+  }
+
+export const logout = async(req,res)=>{
+    const refreshToken = req.cookies?.refreshToken;
+    if(!refreshToken){
+    throw new ApiError(401, "Refresh token missing");
+}
+    const decoded = jwt.verify(
+      refreshToken,
+  process.env.REFRESH_TOKEN_SECRET
+    )
+
+      const sessionRevoke = await pool.query( `
+     UPDATE sessions
+     SET revoked_at = NOW()
+     WHERE id = $1`,
+     [decoded.sessionId]
+);
+
+clearAuthCookies("accessToken", cookieOptions);
+clearAuthCookies("refreshToken", cookieOptions);
+
+return res.status(200).json({
+  success: true,
+  message: "Logged out successfully"
+});
+  }
+
 export const registerUser = async (req, res) => {
  const {name ,email,password}= req.body;
 if(!name ||!email||!password){
@@ -32,7 +129,7 @@ if(userExist.rows.length > 0){
         message: "User with this email already exists",
       });
 }
-    const hashedPassword = await bcrypt.hash(password, 10);
+   
 const result = await pool.query(
       `
       INSERT INTO users (
@@ -131,5 +228,12 @@ export const login = async (req, res) => {
       name: user.name,
       email: user.email,
     },
+  });
+};
+
+export const getMe = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    user: req.user,
   });
 };
