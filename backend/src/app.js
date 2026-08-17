@@ -38,5 +38,6 @@ const health = (req,res)=>{
 }
 router.get("/health",health);
 app.use("/api/v1/user", userRouter);
+
 export default app;
 
