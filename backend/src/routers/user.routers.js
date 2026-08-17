@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js"
-import {getMe, registerUser,refreshTokenController} from "../controller/user.controller.js"
+import {getMe, registerUser,refreshTokenController,login,logout} from "../controller/user.controller.js"
 const router = Router()
 
 
 router.post("/register", registerUser);
 router.post("/refresh-token", refreshTokenController);
-router.get("/me",getMe);
+router.get("/login",login);
+router.post("/logout",logout);
+router.get("/me",verifyJWT,getMe);
 
 
 

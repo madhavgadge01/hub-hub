@@ -2,7 +2,7 @@ import "dotenv/config";
 import app from "./app.js"
 import pool from "./models/db.js";
 
-const Port = process.env.CORS_ORIGIN||8000
+const Port = process.env.PORT||8000
 
 const startServer = async()=>{
     try {
