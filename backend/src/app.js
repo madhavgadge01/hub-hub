@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import userRouter from "./routers/user.routers.js"
+import ToolRouter from "./routers/tool.routers.js"
 import cookieParser from "cookie-parser"
 
 const app=express();
@@ -38,6 +39,7 @@ const health = (req,res)=>{
 }
 router.get("/health",health);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/",ToolRouter)
 
 export default app;
 

@@ -1,20 +1,18 @@
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
-import { pingTool } from "../controller/tool.controller.js";
+import { pingTool , getApiKeys} from "../controller/tool.controller.js";
 import {createApiKey} from "../controller/apiKey.controller.js"
 import { verifyApiKey } from "../middleware/apiKey.middleware.js"
 import {getMe, registerUser,refreshTokenController,login,logout} from "../controller/user.controller.js"
 const router = Router()
-
-
 router.post("/register", registerUser);
 router.post("/refresh-token", refreshTokenController);
 router.get("/login",login);
+router.get("/api-keys", verifyJWT, getApiKeys);
 router.post("/createApiKey",verifyJWT,createApiKey)
 router.get("/ping", verifyApiKey, pingTool);
 router.post("/logout",logout);
 router.get("/me",verifyJWT,getMe);
-
 
 
 
