@@ -60,3 +60,26 @@ export const generateQr = async(req,res)=>{
   })
 
 }
+
+export const revokeApiKey = async(req,res)=>{
+  const { id } = req.params;
+  const userId = req.user.id;
+  const result = await pool.query(
+  `
+  UPDATE api_keys
+  SET revoked_at = NOW()
+  WHERE id = $1
+    AND user_id = $2
+  RETURNING id, name, key_prefix, revoked_at
+  `,
+  [id, userId]
+);
+
+const resultRow = result.rows[0];
+if(!resultRow){
+  throw new ApiError(401,"result not faoud");
+}
+return res.status(200).json({
+  success:true
+})
+}
