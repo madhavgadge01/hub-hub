@@ -35,7 +35,7 @@ export const login = async (req, res) => {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  // 2. Verify password
+
   const isPasswordCorrect = await bcrypt.compare(
     password,
     user.password_hash
