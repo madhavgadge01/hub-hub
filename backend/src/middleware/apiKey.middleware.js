@@ -39,6 +39,23 @@ const keyVerify = await bcrypt.compare(
 if (!keyVerify) {
   throw new ApiError(401, "Invalid API key");
 }
+
+const usageResult = await pool.query(
+  `
+  SELECT COUNT(*)
+  FROM api_usage
+  WHERE api_key_id = $1
+  AND created_at >= NOW() - INTERVAL '1 minute'
+  `,
+  [apiKeyRecord.id]
+);
+
+const requestCount = Number(usageResult.rows[0].count);
+
+if (requestCount >= 60) {
+  throw new ApiError(429, "Rate limit exceeded");
+}
+
 await pool.query(
   `
 UPDATE api_keys
@@ -47,6 +64,25 @@ WHERE id =$1
   `,
   [apiKeyRecord.id]
 );
+
+
+
+
+await pool.query(`INSERT into api_usage(
+  api_key_id,
+user_id,
+endpoint,
+method
+  )VALUES(
+  $1,
+  $2,
+  $3,
+  $4)`,[
+    apiKeyRecord.id,
+    apiKeyRecord.user_id,
+    req.originalUrl,
+    req.method
+  ]);
 
 req.apiKey = {
   id: apiKeyRecord.id,
