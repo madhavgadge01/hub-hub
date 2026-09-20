@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import pool from "../models/db.js";
+import redis from "../config/redis.js"
 import { ApiError } from "../utils/api.error.js";
 
 export const verifyApiKey = async(req,res,next)=>{
@@ -39,20 +40,14 @@ const keyVerify = await bcrypt.compare(
 if (!keyVerify) {
   throw new ApiError(401, "Invalid API key");
 }
+const rateLimitKey = `rate_limit:${apiKeyRecord.id}`;
 
-const usageResult = await pool.query(
-  `
-  SELECT COUNT(*)
-  FROM api_usage
-  WHERE api_key_id = $1
-  AND created_at >= NOW() - INTERVAL '1 minute'
-  `,
-  [apiKeyRecord.id]
-);
+const requestCount = await redis.incr(rateLimitKey)
+if(requestCount===1){
+  await redis.expire(rateLimitKey, 60);
+}
 
-const requestCount = Number(usageResult.rows[0].count);
-
-if (requestCount >= 60) {
+if (requestCount > 60) {
   throw new ApiError(429, "Rate limit exceeded");
 }
 
