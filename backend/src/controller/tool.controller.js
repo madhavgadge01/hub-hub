@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import dns from "dns/promises";
 import * as cheerio from "cheerio";
 import { ApiError } from "../utils/api.error.js";
 import pool from "../models/db.js"
@@ -272,3 +273,30 @@ else strength = "Strong";
  })
 }
 
+export const emailchecker= async(req,res)=>{
+  const { email } = req.body;
+
+  if(!email){
+    throw new ApiError(400,"email is requierd");
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValidSyntax = emailRegex.test(email);
+ if(isValidSyntax==false){
+  throw new ApiError(400,"it not valid")
+ }
+const domain = email.split("@")[1];
+
+try {
+  const records = await dns.resolveMx(domain);
+
+  if (!records || records.length === 0) {
+    throw new ApiError(400, "No mail servers found for this domain");
+}
+} catch (error) {
+  throw new ApiError("email domain is not vaild you need gmail.com aur other offical email")
+}
+return res.status(200).json({
+    success: true,
+    message: "email is perfect"
+});
+}
