@@ -1,10 +1,13 @@
 import QRCode from "qrcode";
 import dns from "dns/promises";
 import * as cheerio from "cheerio";
+
 import { ApiError } from "../utils/api.error.js";
 import pool from "../models/db.js"
 import { json } from "express";
 
+
+// 1
 export const pingTool = async (req, res) => {
   return res.status(200).json({
     success: true,
@@ -13,7 +16,7 @@ export const pingTool = async (req, res) => {
   });
 };
 
-
+// 2
 export const getApiKeys = async (req, res) => {
   const userId = req.user.id;
 
@@ -43,7 +46,7 @@ export const getApiKeys = async (req, res) => {
     apiKeys: result.rows
   });
 };
-
+// 3
 export const generateQr = async(req,res)=>{
   const { text } = req.body;
   if (!text) {
@@ -63,7 +66,7 @@ export const generateQr = async(req,res)=>{
   })
 
 }
-
+// 4
 export const revokeApiKey = async(req,res)=>{
   const { id } = req.params;
   const userId = req.user.id;
@@ -86,7 +89,7 @@ return res.status(200).json({
   success:true
 })
 }
-
+// 5
 export const mataDataUrl = async(req,res)=>{
   const { url} = req.body;
   if(!url){
@@ -183,7 +186,7 @@ return res.status(200).json({
   }
 });
 }
-
+// 6
 export const password = async(req,res)=>{
   const {length ,hasNumbers,hasSymbols,hasUppercase,hasLowercase}= req.body;
   let password =[];
@@ -237,6 +240,7 @@ return res.status(200).json({
     length: finalPasword.length
   });
 }
+// 7
 export const passwordCheaker = async(req,res)=>{
   const {password}=req.body;
   let score =0;
@@ -272,7 +276,7 @@ else strength = "Strong";
   strength: strength,
  })
 }
-
+// 8
 export const emailchecker= async(req,res)=>{
   const { email } = req.body;
 
@@ -300,3 +304,59 @@ return res.status(200).json({
     message: "email is perfect"
 });
 }
+
+// 9
+export const cardValidator = async (req, res) => {
+  const { Cardnumber } = req.body;
+
+
+  if (!Cardnumber) {
+    throw new ApiError(400, "Card number is required");
+  }
+
+if(Cardnumber.length<13 &&  Cardnumber.length>19){
+  throw new ApiError(400,"Invalid card length");
+}
+  const cleanNumber = Cardnumber.replace(/\s|-/g, "");
+
+  if (!/^\d+$/.test(cleanNumber)) {
+    throw new ApiError(400, "Card can only contain numbers");
+  }
+
+  let cardType = "Unknown";
+  if (cleanNumber.startsWith("4")) {
+    cardType = "Visa";
+  } else if (cleanNumber.startsWith("5")) {
+    cardType = "Mastercard";
+  } else if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37")) {
+    cardType = "Amex";
+  }
+
+  let sum = 0;
+  let isAlternate = false;
+
+
+  for (let i = cleanNumber.length - 1; i >= 0; i--) {
+    let digit = parseInt(cleanNumber[i], 10); 
+
+    if (isAlternate) {
+      digit = digit * 2;
+      if (digit > 9) {
+        digit = digit - 9; 
+      }
+    }
+
+    sum += digit;
+    isAlternate = !isAlternate;
+  }
+
+  const isValid = sum % 10 === 0;
+
+  return res.status(200).json({
+    success: true,
+    isValid: isValid,
+    cardType: cardType,
+    message: isValid ? "Mathematical validation passed" : "Invalid card number"
+  });
+};
+
