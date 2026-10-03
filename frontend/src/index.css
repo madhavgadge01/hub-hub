@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --text-primary: #000000;
+    --border-color: #eaeaea;
+  }
+
+  html.dark {
+    --bg-primary: #000000;
+    --text-primary: #ededed;
+    --border-color: #222222;
+    color-scheme: dark;
+  }
+
+  html.light {
+    --bg-primary: #ffffff;
+    --text-primary: #000000;
+    --border-color: #eaeaea;
+    color-scheme: light;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    /* Subtle faint dotted background for ultra-minimalist developer aesthetic */
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
+    letter-spacing: -0.01em;
+  }
+
+  html.light body {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  }
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 9999px;
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #d4d4d4;
+}
+
+/* Crisp ultra-minimal utilities */
+.faint-border {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.light .faint-border {
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.light .dot-pattern {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
