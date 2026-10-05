@@ -1,7 +1,8 @@
 import QRCode from "qrcode";
 import dns from "dns/promises";
 import * as cheerio from "cheerio";
-
+import ytdl from "@distube/ytdl-core";
+import ffmpeg from "fluent-ffmpeg";
 import { ApiError } from "../utils/api.error.js";
 import pool from "../models/db.js"
 import { json } from "express";
@@ -360,3 +361,52 @@ if(Cardnumber.length<13 &&  Cardnumber.length>19){
   });
 };
 
+
+// 10
+export const ytVideo = async (req, res) => {
+    const { url } = req.body;
+    
+    if (!url) {
+        throw new ApiError(400, "URL is required"); // Yahan 400 add kiya hai
+    }
+    
+    const isValid = ytdl.validateURL(url);
+    if (!isValid) {
+        throw new ApiError(400, "URL is not valid");
+    }
+
+    // Browser ko signal dena ki file download karni hai
+    res.header('Content-Disposition', 'attachment; filename="video.mp4"');
+
+    try {
+        // Video ki hidden details nikalna
+        const info = await ytdl.getInfo(url);
+
+        // Direct raw links nikalna
+        const audioFormat = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+        const videoFormat = ytdl.chooseFormat(info.formats, { quality: 'highestvideo', filter: 'videoonly' });
+
+        // FFmpeg se direct links mix karke bhejna
+        ffmpeg()
+            .input(videoFormat.url)
+            .input(audioFormat.url)
+            .outputOptions([
+                '-c:v copy',
+                '-c:a aac'
+            ])
+            .format('mp4')
+            .pipe(res)
+            .on('error', (err) => {
+                console.error("FFmpeg Error:", err);
+                if (!res.headersSent) {
+                    res.status(500).json({ success: false, message: "Video process hone mein error aaya" });
+                }
+            });
+            
+    } catch (error) {
+        console.error("YouTube Fetch Error:", error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: "YouTube se video fetch nahi ho payi" });
+        }
+    }
+};

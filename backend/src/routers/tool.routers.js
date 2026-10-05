@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { generateQr,mataDataUrl,password,passwordCheaker,cardValidator } from "../controller/tool.controller.js";
+import { generateQr,mataDataUrl,password,passwordCheaker,cardValidator,ytVideo} from "../controller/tool.controller.js";
 import {verifyApiKey}from "../middleware/apiKey.middleware.js"
 const ToolRouter = Router()
 
@@ -13,7 +13,7 @@ ToolRouter.post("/url-metadata",
 ToolRouter.post("/password",verifyApiKey,password)
 ToolRouter.post("/passwordchecker",verifyApiKey,passwordCheaker)
 ToolRouter.post("/card-validator",verifyApiKey,cardValidator)
-
+ToolRouter.post("/ytVideo",verifyApiKey,ytVideo)
 
 
 export default ToolRouter;

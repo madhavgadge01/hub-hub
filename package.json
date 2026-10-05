@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}
