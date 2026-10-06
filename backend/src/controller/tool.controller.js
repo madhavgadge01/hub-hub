@@ -367,7 +367,7 @@ export const ytVideo = async (req, res) => {
     const { url } = req.body;
     
     if (!url) {
-        throw new ApiError(400, "URL is required"); // Yahan 400 add kiya hai
+        throw new ApiError(400, "URL is required");
     }
     
     const isValid = ytdl.validateURL(url);
@@ -375,18 +375,18 @@ export const ytVideo = async (req, res) => {
         throw new ApiError(400, "URL is not valid");
     }
 
-    // Browser ko signal dena ki file download karni hai
+  
     res.header('Content-Disposition', 'attachment; filename="video.mp4"');
 
     try {
-        // Video ki hidden details nikalna
+       
         const info = await ytdl.getInfo(url);
 
-        // Direct raw links nikalna
+
         const audioFormat = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
         const videoFormat = ytdl.chooseFormat(info.formats, { quality: 'highestvideo', filter: 'videoonly' });
 
-        // FFmpeg se direct links mix karke bhejna
+       
         ffmpeg()
             .input(videoFormat.url)
             .input(audioFormat.url)
