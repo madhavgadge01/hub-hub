@@ -9,6 +9,9 @@ export const createApiKey = async (req, res) => {
   if(!name){
     throw new ApiError(400,"name requied")
   }
+
+
+  
   const userId = req.user.id
 const randomPart = crypto.randomBytes(24).toString("hex");
   const rawApiKey = `dh_live_${randomPart}`;
