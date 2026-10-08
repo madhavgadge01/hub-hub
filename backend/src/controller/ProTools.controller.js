@@ -1,9 +1,12 @@
 import { ApiError } from "../utils/api.error.js";
+import { marked } from "marked";
+import puppeteer from 'puppeteer';
+
 import pool from "../models/db.js"
 
 import { Buffer } from 'node:buffer';
 
-export const analyze_repo = async (req, res, next) => {
+export const analyze_repo = async (req, res) => {
     const { url } = req.query;
 
     let parsedUrl;
@@ -70,3 +73,48 @@ export const analyze_repo = async (req, res, next) => {
         return res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 }
+
+
+
+export const generatePdf = async (req, res) => {
+    const { markdown } = req.body;
+
+    // Validation
+    if (!markdown) {
+        throw new ApiError(400, "Markdown is empty, it is required");
+    }
+
+    // Step 1: Parse Markdown to HTML
+    const generatedHtml = marked.parse(markdown);
+
+    // Step 2: Launch Browser with Linux/EC2 safety flags
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    try {
+        const page = await browser.newPage();
+        
+        // Wait lagana zaroori hai kyunki content set hone mein time lagta hai
+        await page.setContent(generatedHtml);
+
+        // Wait lagakar raw PDF data (Buffer) extract karo
+        const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+
+        // Terminal mein check karne ke liye ki buffer aaya ya nahi
+        console.log("PDF Buffer Generated:", pdfBuffer);
+
+ res.setHeader('Content-Type', 'application/pdf');
+
+// File ka naam 'kruu-document.pdf' set karo
+res.setHeader('Content-Disposition', 'attachment; filename="kruu-document.pdf"');
+        // return res.status(200).json({ success: true, html: generatedHtml });
+        return res.send(Buffer.from(pdfBuffer));
+    } finally {
+      
+        if (browser) {
+            await browser.close();
+        }
+    }
+};

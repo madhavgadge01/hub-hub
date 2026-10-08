@@ -23,7 +23,9 @@
     "express": "^5.2.1",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
+    "marked": "^18.1.0",
     "pg": "^8.22.0",
+    "puppeteer": "^25.13.0",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
