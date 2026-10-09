@@ -102,14 +102,14 @@ export const generatePdf = async (req, res) => {
         // Wait lagakar raw PDF data (Buffer) extract karo
         const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
 
-        // Terminal mein check karne ke liye ki buffer aaya ya nahi
+       
         console.log("PDF Buffer Generated:", pdfBuffer);
 
  res.setHeader('Content-Type', 'application/pdf');
 
-// File ka naam 'kruu-document.pdf' set karo
+
 res.setHeader('Content-Disposition', 'attachment; filename="kruu-document.pdf"');
-        // return res.status(200).json({ success: true, html: generatedHtml });
+      
         return res.send(Buffer.from(pdfBuffer));
     } finally {
       
@@ -118,3 +118,27 @@ res.setHeader('Content-Disposition', 'attachment; filename="kruu-document.pdf"')
         }
     }
 };
+
+
+export const sortenLink = async(req,res)=>{
+    const { url } = req.body;
+
+function generateRandomString(n) {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    
+    for (let i = 0; i < n; i++) {
+        const randomIndex = Math.floor(Math.random() * letters.length);
+        result += letters.charAt(randomIndex);
+    }
+    
+    return result;
+}
+
+const shortCode = generateRandomString(6);
+
+const finnallink = `"https://kruu.online/"${shortCode}`
+
+
+return res.status(200).json({ originalUrl: url, shortCode: shortCode ,mainCode:finnallink});
+}
