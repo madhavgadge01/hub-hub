@@ -1,5 +1,8 @@
 import bcrypt from "bcrypt";
 import pool from "../models/db.js";
+import rateLimit from 'express-rate-limit';
+
+
 import redis from "../config/redis.js"
 import { ApiError } from "../utils/api.error.js";
 
@@ -88,3 +91,16 @@ req.apiKey = {
 next();
 
 }
+
+
+export const createLinkLimiter = rateLimit({
+     windowMs: 1 * 60 * 1000,
+   
+    max: 20,
+    message: {
+        success: false,
+        message: "Bhai, thoda aaram se! 1 minute mein max 20 links hi bana sakte ho. Thodi der baad try karo."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});

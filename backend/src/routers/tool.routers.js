@@ -1,7 +1,8 @@
 import { Router } from "express";
+
 import { generateQr,mataDataUrl,password,passwordCheaker,cardValidator,ytVideo} from "../controller/tool.controller.js";
-import {analyze_repo,generatePdf,sortenLink}from "../controller/ProTools.controller.js"
-import {verifyApiKey}from "../middleware/apiKey.middleware.js"
+import {analyze_repo,generatePdf,sortenLink,getLongLink}from "../controller/ProTools.controller.js"
+import {verifyApiKey,createLinkLimiter}from "../middleware/apiKey.middleware.js"
 const ToolRouter = Router()
 
 
@@ -18,5 +19,6 @@ ToolRouter.post("/ytVideo",verifyApiKey,ytVideo)
 ToolRouter.post("/analyze_repo",verifyApiKey,analyze_repo)
 ToolRouter.post("/generate_pdf",verifyApiKey,generatePdf)
 ToolRouter.post("/sortenLink",verifyApiKey,sortenLink)
+ToolRouter.get("/:url",createLinkLimiter,getLongLink);
 
 export default ToolRouter;

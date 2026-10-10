@@ -1,16 +1,17 @@
 import { ApiError } from "../utils/api.error.js";
 import { marked } from "marked";
 import puppeteer from 'puppeteer';
-
+import redis from "../config/redis.js"
 import pool from "../models/db.js"
 
 import { Buffer } from 'node:buffer';
+import { url } from "node:inspector";
 
 export const analyze_repo = async (req, res) => {
     const { url } = req.query;
 
     let parsedUrl;
-    // Step 1: URL validation
+   
     try {
         // 5
         parsedUrl = new URL(url);
@@ -122,23 +123,84 @@ res.setHeader('Content-Disposition', 'attachment; filename="kruu-document.pdf"')
 
 export const sortenLink = async(req,res)=>{
     const { url } = req.body;
-
-function generateRandomString(n) {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    
-    for (let i = 0; i < n; i++) {
-        const randomIndex = Math.floor(Math.random() * letters.length);
-        result += letters.charAt(randomIndex);
+    if(!url){
+        throw new ApiError(400,"url required bro");
     }
-    
-    return result;
+
+    function generateRandomString(n) {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < n; i++) {
+            const randomIndex = Math.floor(Math.random() * letters.length);
+            result += letters.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    const shortCode = generateRandomString(6);
+
+   
+    const finnallink = `https://kruu.online/${shortCode}`;
+
+
+    await pool.query(
+        `
+        INSERT INTO urls (
+          original_url,
+          short_code
+        )
+        VALUES (
+          $1,
+          $2
+        )
+        `,
+        [url, shortCode]
+    );
+
+    return res.status(200).json({ originalUrl: url, shortCode: shortCode, mainCode: finnallink });
 }
 
-const shortCode = generateRandomString(6);
 
-const finnallink = `"https://kruu.online/"${shortCode}`
+export const getLongLink = async (req, res) => {
+  
+    const { url } = req.params;
+
+    if (!url) {
+        return res.status(400).json({ success: false, message: "Code is required" });
+    }
 
 
-return res.status(200).json({ originalUrl: url, shortCode: shortCode ,mainCode:finnallink});
+  const click_count=  pool.query(
+        `UPDATE urls SET click_count = click_count + 1 WHERE short_code = $1`,
+        [url]
+    ).catch(err => console.log("Analytics Error:", err));
+
+
+    const cachedUrl = await redis.get(url);
+    if (cachedUrl) {
+       
+        return res.redirect(cachedUrl);
+    }
+
+
+    const ogURL = await pool.query(
+        `SELECT original_url FROM urls WHERE short_code = $1`,
+        [url]
+    );
+
+    if (ogURL.rows.length === 0) {
+        return res.status(404).send("Link not found");
+    }
+
+    const actualLongUrl = ogURL.rows[0].original_url;
+
+  
+    await redis.set(url, actualLongUrl, 'EX', 3600);
+
+
+    return res.redirect(actualLongUrl);
 }
+
+
+
+
