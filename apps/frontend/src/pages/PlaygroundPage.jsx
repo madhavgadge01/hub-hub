@@ -11,64 +11,54 @@ export const PlaygroundPage = () => {
   const [selectedTool, setSelectedTool] = useState(PLAYGROUND_TOOLS[0]);
   const [loading, setLoading] = useState(false);
   const [currentAuthKey, setCurrentAuthKey] = useState('');
-  const [response, setResponse] = useState(() => {
-    // Initial demo response for immediate delight
-    const initialResult = PLAYGROUND_TOOLS[0].handler(PLAYGROUND_TOOLS[0].defaultPayload);
-    return {
-      status: 200,
-      time: 14,
-      size: '1.1 KB',
-      data: initialResult
-    };
+  const [response, setResponse] = useState({
+    status: 200,
+    time: 14,
+    size: '1.2 KB',
+    data: {
+      success: true,
+      message: 'Select a utility and execute live requests against Hub&Hub microservices.',
+    },
   });
+
+  const runTool = async (tool, payload, authKey) => {
+    setLoading(true);
+    const start = performance.now();
+    try {
+      const result = await tool.execute(payload, authKey);
+      const elapsed = Math.round(performance.now() - start);
+      setResponse({
+        status: 200,
+        time: elapsed,
+        size: `${(JSON.stringify(result).length / 1024).toFixed(1)} KB`,
+        data: result,
+      });
+      addToast(`Executed ${tool.name} in ${elapsed}ms`, 'success');
+    } catch (err) {
+      const elapsed = Math.round(performance.now() - start);
+      setResponse({
+        status: err.status || 400,
+        time: elapsed,
+        size: '0.4 KB',
+        data: {
+          error: err.message || 'Request failed',
+          details: err.data || null,
+        },
+      });
+      addToast(err.message || 'Request failed', 'warning');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleToolSelect = (tool) => {
     setSelectedTool(tool);
-    // Automatically execute default payload on switch for instant interactive preview
-    setLoading(true);
-    setTimeout(() => {
-      const result = tool.handler(tool.defaultPayload);
-      setResponse({
-        status: 200,
-        time: Math.floor(Math.random() * 20) + 8,
-        size: `${(JSON.stringify(result).length / 1024).toFixed(1)} KB`,
-        data: result
-      });
-      setLoading(false);
-    }, 150);
+    runTool(tool, tool.defaultPayload, currentAuthKey);
   };
 
   const handleExecute = (payload, authKey) => {
     setCurrentAuthKey(authKey);
-    setLoading(true);
-    
-    // Simulate real edge roundtrip latency
-    const latency = Math.floor(Math.random() * 25) + 12;
-    setTimeout(() => {
-      try {
-        const result = selectedTool.handler(payload);
-        setResponse({
-          status: 200,
-          time: latency,
-          size: `${(JSON.stringify(result).length / 1024).toFixed(1)} KB`,
-          data: result
-        });
-        addToast(`Executed ${selectedTool.name} in ${latency}ms`, 'success');
-      } catch (err) {
-        setResponse({
-          status: 400,
-          time: latency,
-          size: '0.4 KB',
-          data: {
-            error: err.message || 'Malformed JSON or invalid parameters',
-            code: 'INVALID_REQUEST'
-          }
-        });
-        addToast('Request failed. Check parameters.', 'warning');
-      } finally {
-        setLoading(false);
-      }
-    }, 320);
+    runTool(selectedTool, payload, authKey);
   };
 
   return (

@@ -97,22 +97,32 @@ export const TopNavigation = ({
           {/* Light/Dark Mode Toggle */}
           <ThemeToggle />
 
-          {/* User Profile Avatar */}
-          <button
-            type="button"
-            onClick={onOpenProfileModal}
-            className="relative flex items-center gap-2 pl-1 group focus:outline-none"
-            title="View Developer Profile & Settings"
-          >
-            <div className="relative">
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-8 h-8 rounded-full border dark:border-[#333333] border-neutral-300 object-cover group-hover:ring-2 ring-blue-500/40 transition-all"
-              />
-              <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 dark:ring-black ring-white" />
-            </div>
-          </button>
+          {/* User Profile Avatar or Sign In button */}
+          {user ? (
+            <button
+              type="button"
+              onClick={onOpenProfileModal}
+              className="relative flex items-center gap-2 pl-1 group focus:outline-none"
+              title="View Developer Profile & Settings"
+            >
+              <div className="relative">
+                <img
+                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
+                  alt={user.name || 'User'}
+                  className="w-8 h-8 rounded-full border dark:border-[#333333] border-neutral-300 object-cover group-hover:ring-2 ring-blue-500/40 transition-all"
+                />
+                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 dark:ring-black ring-white" />
+              </div>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenProfileModal ? onOpenProfileModal(true) : null}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
+            >
+              Sign In
+            </button>
+          )}
         </div>
 
       </div>

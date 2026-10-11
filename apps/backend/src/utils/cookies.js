@@ -1,22 +1,30 @@
-const authCookieOptions = {
+import { env } from "../config/env.js";
+
+export const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: env.isProduction,
+  sameSite: env.isProduction ? "strict" : "lax",
+  path: "/",
 };
 
-export const setAuthCookies = (res, accessToken, refreshToken) => {
+export const ACCESS_TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutes
+export const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export function setAuthCookies(res, accessToken, refreshToken) {
   res.cookie("accessToken", accessToken, {
-    ...authCookieOptions,
-    maxAge: 15 * 60 * 1000,
+    ...cookieOptions,
+    maxAge: ACCESS_TOKEN_MAX_AGE,
   });
 
-  res.cookie("refreshToken", refreshToken, {
-    ...authCookieOptions,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-};
+  if (refreshToken) {
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      maxAge: REFRESH_TOKEN_MAX_AGE,
+    });
+  }
+}
 
-export const clearAuthCookies = (res) => {
-  res.clearCookie("accessToken", authCookieOptions);
-  res.clearCookie("refreshToken", authCookieOptions);
-};
+export function clearAuthCookies(res) {
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
+}

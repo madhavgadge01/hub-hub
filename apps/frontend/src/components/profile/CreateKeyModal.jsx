@@ -9,23 +9,33 @@ export const CreateKeyModal = ({ isOpen, onClose }) => {
   const [environment, setEnvironment] = useState('Production');
   const [rateLimit, setRateLimit] = useState('1,000 req/min');
   const [generatedKey, setGeneratedKey] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    const newKey = createApiKey({
-      name: name.trim(),
-      environment,
-      rateLimit
-    });
-    setGeneratedKey(newKey);
+    setLoading(true);
+    try {
+      const newKey = await createApiKey({
+        name: name.trim(),
+        environment,
+        rateLimit,
+      });
+      setGeneratedKey(newKey);
+    } catch {
+      // Error is handled in context toast
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const secretText = generatedKey?.rawKey || generatedKey?.key || '';
+
   const handleCopy = () => {
-    if (generatedKey?.key) {
-      navigator.clipboard.writeText(generatedKey.key);
+    if (secretText) {
+      navigator.clipboard.writeText(secretText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -68,7 +78,7 @@ export const CreateKeyModal = ({ isOpen, onClose }) => {
             </label>
             <div className="flex items-center gap-2 p-2.5 rounded-lg border dark:bg-[#111111] dark:border-[#333333] bg-neutral-100 border-[#eaeaea]">
               <code className="text-xs font-mono dark:text-emerald-400 text-emerald-600 flex-1 break-all select-all">
-                {generatedKey.key}
+                {secretText}
               </code>
               <button
                 type="button"

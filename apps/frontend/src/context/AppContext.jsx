@@ -1,42 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api/client';
 
 const AppContext = createContext();
-
-const INITIAL_API_KEYS = [
-  {
-    id: 'key_1',
-    name: 'Production Primary Server',
-    key: 'dh_live_8f93e2b10a9c447591e1d8a39c011e2f',
-    environment: 'Production',
-    created: '2026-08-15',
-    lastUsed: 'Just now',
-    callsThisMonth: 18420,
-    rateLimit: '1,000 req/min',
-    status: 'active'
-  },
-  {
-    id: 'key_2',
-    name: 'Staging Integration Cluster',
-    key: 'dh_test_7a10b49c009148d82beff8129a34bc98',
-    environment: 'Staging',
-    created: '2026-09-02',
-    lastUsed: '2 hours ago',
-    callsThisMonth: 3410,
-    rateLimit: '500 req/min',
-    status: 'active'
-  },
-  {
-    id: 'key_3',
-    name: 'CI/CD Automated Test Suite',
-    key: 'dh_test_3c990a4177eb48cfba1902847a9ef031',
-    environment: 'Development',
-    created: '2026-09-20',
-    lastUsed: 'Yesterday',
-    callsThisMonth: 890,
-    rateLimit: '100 req/min',
-    status: 'active'
-  }
-];
 
 const VALID_COUPONS = {
   'DEVHUBS2026': { credits: 5000, label: 'Early Adopter Developer Grant' },
@@ -47,18 +12,10 @@ const VALID_COUPONS = {
 };
 
 export const AppProvider = ({ children }) => {
-  // User profile state
-  const [user, setUser] = useState({
-    name: 'Alex Vance',
-    email: 'alex.vance@developer.io',
-    username: 'alexvance_dev',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-    role: 'Staff Infrastructure Engineer',
-    organization: 'HyperScale Labs',
-    plan: 'Pro Developer',
-    memberSince: 'October 2025',
-    region: 'us-east-1 (N. Virginia)',
-  });
+  // Authentication state
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Billing and credits state
   const [credits, setCredits] = useState({
@@ -75,12 +32,16 @@ export const AppProvider = ({ children }) => {
       code: 'WELCOME2026',
       credits: 2000,
       appliedAt: '2026-08-15',
-      label: 'Welcome Starter Credits'
-    }
+      label: 'Welcome Starter Credits',
+    },
   ]);
 
-  // API keys state
-  const [apiKeys, setApiKeys] = useState(INITIAL_API_KEYS);
+  // API keys state (loaded from backend)
+  const [apiKeys, setApiKeys] = useState([]);
+  const [keysLoading, setKeysLoading] = useState(false);
+
+  // Usage analytics state
+  const [analytics, setAnalytics] = useState(null);
 
   // Compare APIs list for Marketplace
   const [compareList, setCompareList] = useState([]);
@@ -91,98 +52,205 @@ export const AppProvider = ({ children }) => {
 
   const addToast = (message, type = 'success', duration = 3500) => {
     const id = Date.now() + Math.random().toString(36).substring(2, 5);
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       removeToast(id);
     }, duration);
   };
 
   const removeToast = (id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // API Key management actions
-  const createApiKey = (keyData) => {
-    const randomHex = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-    const prefix = keyData.environment === 'Production' ? 'dh_live_' : 'dh_test_';
-    const newKey = {
-      id: `key_${Date.now()}`,
-      name: keyData.name || 'New API Key',
-      key: `${prefix}${randomHex}`,
-      environment: keyData.environment || 'Production',
-      created: new Date().toISOString().split('T')[0],
-      lastUsed: 'Never',
-      callsThisMonth: 0,
-      rateLimit: keyData.rateLimit || '1,000 req/min',
-      status: 'active'
+  // Initial user session verification
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await api.getMe();
+        if (res.user) {
+          setUser({
+            ...res.user,
+            avatar:
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+            role: 'Staff Infrastructure Engineer',
+            organization: 'HyperScale Labs',
+            plan: 'Pro Developer',
+            memberSince: new Date(res.user.created_at || Date.now()).toLocaleDateString('en-US', {
+              month: 'long',
+              year: 'numeric',
+            }),
+            region: 'us-east-1 (N. Virginia)',
+          });
+        }
+      } catch {
+        // Not authenticated yet
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
     };
+    checkSession();
+  }, []);
 
-    setApiKeys(prev => [newKey, ...prev]);
-    addToast(`API Key "${newKey.name}" generated successfully!`, 'success');
-    return newKey;
-  };
+  // Fetch API keys whenever authenticated user changes
+  useEffect(() => {
+    if (user?.id) {
+      fetchApiKeys();
+      fetchAnalytics();
+    } else {
+      setApiKeys([]);
+    }
+  }, [user?.id]);
 
-  const revokeApiKey = (id) => {
-    const keyToDelete = apiKeys.find(k => k.id === id);
-    setApiKeys(prev => prev.filter(k => k.id !== id));
-    if (keyToDelete) {
-      addToast(`API Key "${keyToDelete.name}" revoked permanently`, 'info');
+  const fetchApiKeys = async () => {
+    setKeysLoading(true);
+    try {
+      const res = await api.listKeys();
+      if (res.apiKeys) {
+        setApiKeys(res.apiKeys);
+      }
+    } catch (err) {
+      console.warn('Could not fetch API keys:', err.message);
+    } finally {
+      setKeysLoading(false);
     }
   };
 
-  // Coupon redemption action
+  const fetchAnalytics = async () => {
+    try {
+      const res = await api.getAnalytics();
+      if (res.analytics) {
+        setAnalytics(res.analytics);
+      }
+    } catch (err) {
+      console.warn('Could not fetch analytics:', err.message);
+    }
+  };
+
+  // Auth actions
+  const loginAction = async ({ email, password }) => {
+    const res = await api.login({ email, password });
+    if (res.user) {
+      setUser({
+        ...res.user,
+        avatar:
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+        role: 'Staff Infrastructure Engineer',
+        organization: 'HyperScale Labs',
+        plan: 'Pro Developer',
+        memberSince: 'October 2026',
+        region: 'us-east-1 (N. Virginia)',
+      });
+      await fetchApiKeys();
+    }
+    return res;
+  };
+
+  const registerAction = async ({ name, email, password }) => {
+    const res = await api.register({ name, email, password });
+    if (res.user) {
+      setUser({
+        ...res.user,
+        avatar:
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+        role: 'Staff Infrastructure Engineer',
+        organization: 'HyperScale Labs',
+        plan: 'Pro Developer',
+        memberSince: 'October 2026',
+        region: 'us-east-1 (N. Virginia)',
+      });
+      await fetchApiKeys();
+    }
+    return res;
+  };
+
+  const logoutAction = async () => {
+    try {
+      await api.logout();
+    } catch {}
+    setUser(null);
+    setApiKeys([]);
+    addToast('Logged out successfully', 'info');
+  };
+
+  // API Key actions calling backend
+  const createApiKeyAction = async (keyData) => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      throw new Error('Please sign in to generate developer API keys.');
+    }
+
+    const res = await api.createKey({ name: keyData.name || 'New API Key' });
+    if (res.apiKey) {
+      await fetchApiKeys();
+      addToast(`API Key "${res.apiKey.name}" generated successfully!`, 'success');
+      return res.apiKey;
+    }
+  };
+
+  const revokeApiKeyAction = async (id) => {
+    try {
+      await api.revokeKey(id);
+      await fetchApiKeys();
+      addToast('API key revoked successfully.', 'info');
+    } catch (err) {
+      addToast(err.message || 'Failed to revoke API key.', 'warning');
+    }
+  };
+
+  // Coupon redemption
   const redeemCoupon = (code) => {
     const normalized = code.trim().toUpperCase();
     if (!normalized) {
       return { success: false, message: 'Please enter a coupon code.' };
     }
 
-    if (redeemedCoupons.some(c => c.code === normalized)) {
-      return { success: false, message: 'This coupon code has already been redeemed on your account.' };
+    if (redeemedCoupons.some((c) => c.code === normalized)) {
+      return {
+        success: false,
+        message: 'This coupon code has already been redeemed on your account.',
+      };
     }
 
     const coupon = VALID_COUPONS[normalized];
     if (!coupon) {
-      return { 
-        success: false, 
-        message: 'Invalid code. Try "DEVHUBS2026", "LAUNCH1000", or "OCTOBERFREE".' 
+      return {
+        success: false,
+        message: 'Invalid code. Try "DEVHUBS2026", "LAUNCH1000", or "OCTOBERFREE".',
       };
     }
 
-    // Apply credits
-    setCredits(prev => ({
+    setCredits((prev) => ({
       ...prev,
       total: prev.total + coupon.credits,
-      remaining: prev.remaining + coupon.credits
+      remaining: prev.remaining + coupon.credits,
     }));
 
     const redemptionRecord = {
       code: normalized,
       credits: coupon.credits,
       appliedAt: new Date().toISOString().split('T')[0],
-      label: coupon.label
+      label: coupon.label,
     };
 
-    setRedeemedCoupons(prev => [redemptionRecord, ...prev]);
+    setRedeemedCoupons((prev) => [redemptionRecord, ...prev]);
     addToast(`Successfully redeemed ${coupon.credits.toLocaleString()} API credits!`, 'success');
-    return { 
-      success: true, 
-      message: `Granted +${coupon.credits.toLocaleString()} credits (${coupon.label})` 
+    return {
+      success: true,
+      message: `Granted +${coupon.credits.toLocaleString()} credits (${coupon.label})`,
     };
   };
 
   // Compare management
-  const toggleCompare = (api) => {
-    setCompareList(prev => {
-      const exists = prev.some(item => item.id === api.id);
-      if (exists) {
-        return prev.filter(item => item.id !== api.id);
-      }
+  const toggleCompare = (item) => {
+    setCompareList((prev) => {
+      const exists = prev.some((i) => i.id === item.id);
+      if (exists) return prev.filter((i) => i.id !== item.id);
       if (prev.length >= 3) {
-        addToast('You can compare a maximum of 3 APIs at once', 'warning');
+        addToast('You can compare a maximum of 3 items at once', 'warning');
         return prev;
       }
-      return [...prev, api];
+      return [...prev, item];
     });
   };
 
@@ -193,13 +261,22 @@ export const AppProvider = ({ children }) => {
       value={{
         user,
         setUser,
+        authLoading,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        login: loginAction,
+        register: registerAction,
+        logout: logoutAction,
         credits,
         setCredits,
         redeemedCoupons,
         redeemCoupon,
         apiKeys,
-        createApiKey,
-        revokeApiKey,
+        keysLoading,
+        fetchApiKeys,
+        createApiKey: createApiKeyAction,
+        revokeApiKey: revokeApiKeyAction,
+        analytics,
         compareList,
         toggleCompare,
         clearCompare,
@@ -222,3 +299,5 @@ export const useApp = () => {
   }
   return context;
 };
+
+export default AppContext;

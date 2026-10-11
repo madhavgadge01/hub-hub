@@ -1,45 +1,83 @@
-import express from "express"
-import cors from "cors"
-import userRouter from "./routers/user.routers.js"
-import ToolRouter from "./routers/tool.routers.js"
-import cookieParser from "cookie-parser"
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
 
-const app=express();
-app.use(cors({
+import { env } from "./config/env.js";
+import { healthCheck, readinessCheck } from "./controllers/health.controller.js";
+import authRoutes from "./routes/auth.routes.js";
+import apiKeyRoutes from "./routes/apiKey.routes.js";
+import utilityRoutes from "./routes/utility.routes.js";
+import developerRoutes from "./routes/developer.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
+import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
-    origin:process.env.CORS_ORIGIN ||["http://localhost:5173"],
+const app = express();
+
+// Security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: env.isProduction ? undefined : false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// CORS configuration supporting credentials and custom headers
+const allowedOrigins = env.corsOrigin
+  ? env.corsOrigin.split(",").map((o) => o.trim())
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Permissive in dev, or specific origin
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
-allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "Accept"
-    ]
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x-api-key",
+      "X-Requested-With",
+      "Accept",
+    ],
+    exposedHeaders: [
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "X-RateLimit-Reset",
+      "Retry-After",
+    ],
+  })
+);
 
-}));
+// Request body parsers with sensible limits
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+app.use(cookieParser());
 
-app.use(express.json({limit:"16kb"}))
-app.use(express.urlencoded({extended: true,limit: "16kb"}))
-app.use(cookieParser())
+// Root health & readiness endpoints
+app.get("/health", healthCheck);
+app.get("/ready", readinessCheck);
 
+// Browser-facing Application API routes
+app.use("/api/auth", authRoutes);
+app.use("/api/keys", apiKeyRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/utilities", utilityRoutes);
 
+// Protected Developer API endpoints (v1)
+app.use("/api/v1", developerRoutes);
 
-const router = express.Router();
-const health = (req,res)=>{
+// Legacy backward-compatibility alias routes for user operations
+app.use("/api/v1/user", authRoutes);
 
-
-        console.log("it's working")
-
-
-    res.json({
-       "success": true,
-  "message": "DevHub API is running"
-    })
-}
-router.get("/health",health);
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/",ToolRouter)
+// 404 & Centralized Error Handlers
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
-

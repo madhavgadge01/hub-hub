@@ -113,58 +113,62 @@ export const ApiKeysTable = () => {
             </thead>
             <tbody className="divide-y dark:divide-[#222222] divide-[#eaeaea] text-xs">
               {apiKeys.map((k) => {
-                const isVisible = visibleKeyIds.has(k.id);
-                const isLive = k.environment === 'Production';
+                const isRevoked = k.status === 'revoked' || !!k.revokedAt;
+                const formattedCreated = k.createdAt
+                  ? new Date(k.createdAt).toLocaleDateString()
+                  : k.created || 'Recently';
+                const formattedLastUsed = k.lastUsedAt
+                  ? new Date(k.lastUsedAt).toLocaleDateString()
+                  : k.lastUsed || 'Never';
+
+                const displayToken = k.maskedKey || `${k.keyPrefix || 'dh_live_'}••••••••••••••••••••••••`;
 
                 return (
                   <tr
                     key={k.id}
-                    className="group hover:bg-neutral-500/5 transition-colors"
+                    className={`group transition-colors ${
+                      isRevoked ? 'opacity-60 bg-neutral-500/5' : 'hover:bg-neutral-500/5'
+                    }`}
                   >
                     {/* Key Name & Last Used */}
                     <td className="py-3.5 px-5">
-                      <div className="font-semibold dark:text-white text-black">
-                        {k.name}
+                      <div className="font-semibold dark:text-white text-black flex items-center gap-2">
+                        <span>{k.name}</span>
+                        {isRevoked && (
+                          <Badge variant="outline" size="xs" className="text-rose-500 border-rose-500/30">
+                            Revoked
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] dark:text-neutral-400 text-neutral-500 mt-0.5">
                         <Clock className="w-3 h-3" />
-                        <span>Last used {k.lastUsed}</span>
+                        <span>Last used {formattedLastUsed}</span>
                       </div>
                     </td>
 
                     {/* Environment */}
                     <td className="py-3.5 px-4">
                       <Badge
-                        variant={isLive ? 'info' : 'outline'}
+                        variant={isRevoked ? 'outline' : 'info'}
                         size="xs"
                       >
-                        {k.environment}
+                        {k.environment || 'Production'}
                       </Badge>
                     </td>
 
-                    {/* Masked / Unmasked Key */}
+                    {/* Masked Key */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs dark:text-neutral-300 text-neutral-800 bg-neutral-500/10 px-2 py-1 rounded border dark:border-[#222222] border-neutral-200">
-                          {isVisible ? k.key : maskKey(k.key)}
+                          {displayToken}
                         </span>
-                        
-                        {/* Eye toggle */}
-                        <button
-                          onClick={() => toggleVisibility(k.id)}
-                          type="button"
-                          className="p-1 rounded text-neutral-400 hover:text-white transition-colors"
-                          title={isVisible ? "Mask key" : "Show full key"}
-                        >
-                          {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
 
-                        {/* Copy button */}
+                        {/* Copy prefix button */}
                         <button
-                          onClick={() => copyKey(k.key, k.name)}
+                          onClick={() => copyKey(k.keyPrefix || displayToken, k.name)}
                           type="button"
                           className="p-1 rounded text-neutral-400 hover:text-blue-500 transition-colors"
-                          title="Copy key to clipboard"
+                          title="Copy key prefix"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -173,25 +177,29 @@ export const ApiKeysTable = () => {
 
                     {/* Created Date */}
                     <td className="py-3.5 px-4 font-mono text-[11px] dark:text-neutral-400 text-neutral-500 hidden md:table-cell">
-                      {k.created}
+                      {formattedCreated}
                     </td>
 
                     {/* Rate Limit */}
                     <td className="py-3.5 px-4 font-mono text-[11px] dark:text-neutral-300 text-neutral-700 hidden lg:table-cell">
-                      {k.rateLimit}
+                      60 req/min
                     </td>
 
                     {/* Action: Revoke */}
                     <td className="py-3.5 px-5 text-right">
-                      <button
-                        onClick={() => confirmRevoke(k)}
-                        type="button"
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.2 rounded-md text-[11px] font-medium text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
-                        title="Revoke key permanently"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        <span className="hidden sm:inline">Revoke</span>
-                      </button>
+                      {!isRevoked ? (
+                        <button
+                          onClick={() => confirmRevoke(k)}
+                          type="button"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.2 rounded-md text-[11px] font-medium text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
+                          title="Revoke key permanently"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span className="hidden sm:inline">Revoke</span>
+                        </button>
+                      ) : (
+                        <span className="text-[11px] font-mono text-neutral-500">Revoked</span>
+                      )}
                     </td>
                   </tr>
                 );

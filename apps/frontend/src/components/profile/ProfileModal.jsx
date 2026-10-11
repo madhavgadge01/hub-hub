@@ -5,9 +5,9 @@ import Badge from '../common/Badge';
 import { useApp } from '../../context/AppContext';
 
 export const ProfileModal = ({ isOpen, onClose }) => {
-  const { user, credits } = useApp();
+  const { user, credits, logout } = useApp();
 
-  if (!isOpen) return null;
+  if (!isOpen || !user) return null;
 
   return (
     <Modal
@@ -63,7 +63,17 @@ export const ProfileModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="pt-3 border-t dark:border-[#222222] border-neutral-200 flex justify-end">
+        <div className="pt-3 border-t dark:border-[#222222] border-neutral-200 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              onClose();
+            }}
+            className="px-3.5 py-2 rounded-lg text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors"
+          >
+            Sign Out
+          </button>
           <button
             type="button"
             onClick={onClose}

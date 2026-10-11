@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import TopNavigation from './components/navigation/TopNavigation';
 import DevToolsDiscoveryPage from './pages/DevToolsDiscoveryPage';
 import MyApisPage from './pages/MyApisPage';
 import ProfileModal from './components/profile/ProfileModal';
+import AuthModal from './components/auth/AuthModal';
 import ToastContainer from './components/common/Toast';
-import { Terminal, Shield, Heart } from 'lucide-react';
 
 function UltraMinimalistApp() {
-  // Main view mode: 'devtools' | 'my-apis'
+  const { user, isAuthModalOpen, setIsAuthModalOpen } = useApp();
   const [activeTab, setActiveTab] = useState('devtools');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const handleProfileClick = () => {
+    if (user) {
+      setIsProfileModalOpen(true);
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-200 dark:bg-black bg-white dark:text-[#EDEDED] text-black">
@@ -19,7 +27,7 @@ function UltraMinimalistApp() {
       <TopNavigation
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenProfileModal={() => setIsProfileModalOpen(true)}
+        onOpenProfileModal={handleProfileClick}
       />
 
       {/* Main View Area (Dev Tools Discovery vs My APIs) */}
@@ -37,7 +45,7 @@ function UltraMinimalistApp() {
           <div className="flex items-center gap-2 dark:text-neutral-500 text-neutral-600">
             <span className="font-semibold dark:text-neutral-200 text-neutral-900">Hubs & Hubs</span>
             <span>•</span>
-            <span>Ultra-minimalist developer platform & tools directory</span>
+            <span>Developer utility platform & microservice directory</span>
           </div>
 
           <div className="flex items-center gap-4 dark:text-neutral-500 text-neutral-500 text-[11px]">
@@ -55,6 +63,12 @@ function UltraMinimalistApp() {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
 
       {/* Global Toast Feedback Container */}
