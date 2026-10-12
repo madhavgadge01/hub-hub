@@ -72,6 +72,38 @@ export const api = {
       headers: { "x-api-key": apiKey },
       body: payload,
     }),
+
+  // Section 1: Tools Directory APIs
+  getToolsCategories: () => apiFetch("/api/tools/categories"),
+  getLatestTools: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiFetch(`/api/tools/latest${query ? `?${query}` : ""}`);
+  },
+  getTools: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiFetch(`/api/tools${query ? `?${query}` : ""}`);
+  },
+  getFilterMetadata: () => apiFetch("/api/tools/filters"),
+  getToolBySlug: (slug) => apiFetch(`/api/tools/${slug}`),
+  getToolPricing: (slug) => apiFetch(`/api/tools/${slug}/pricing`),
+  getToolFeatures: (slug) => apiFetch(`/api/tools/${slug}/features`),
+  getToolIntegrations: (slug) => apiFetch(`/api/tools/${slug}/integrations`),
+  getToolSpecifications: (slug) => apiFetch(`/api/tools/${slug}/specifications`),
+  compareTools: (identifiers = []) => {
+    const query = Array.isArray(identifiers) ? identifiers.join(",") : identifiers;
+    return apiFetch(`/api/tools/compare?slugs=${encodeURIComponent(query)}`);
+  },
+
+  // Admin Catalogue APIs
+  adminCreateCategory: (payload) => apiFetch("/api/tools/admin/categories", { method: "POST", body: payload }),
+  adminUpdateCategory: (id, payload) => apiFetch(`/api/tools/admin/categories/${id}`, { method: "PUT", body: payload }),
+  adminDeleteCategory: (id) => apiFetch(`/api/tools/admin/categories/${id}`, { method: "DELETE" }),
+  adminCreateTool: (payload) => apiFetch("/api/tools/admin/tools", { method: "POST", body: payload }),
+  adminUpdateTool: (id, payload) => apiFetch(`/api/tools/admin/tools/${id}`, { method: "PUT", body: payload }),
+  adminDeleteTool: (id) => apiFetch(`/api/tools/admin/tools/${id}`, { method: "DELETE" }),
+  adminAddPlan: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/plans`, { method: "POST", body: payload }),
+  adminAddFeature: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/features`, { method: "POST", body: payload }),
+  adminAddSpecification: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/specifications`, { method: "POST", body: payload }),
 };
 
 export default api;

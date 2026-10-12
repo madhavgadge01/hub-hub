@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import TopNavigation from './components/navigation/TopNavigation';
-import DevToolsDiscoveryPage from './pages/DevToolsDiscoveryPage';
+import ToolsDirectoryPage from './pages/ToolsDirectoryPage';
 import MyApisPage from './pages/MyApisPage';
 import ProfileModal from './components/profile/ProfileModal';
 import AuthModal from './components/auth/AuthModal';
@@ -30,12 +30,14 @@ function UltraMinimalistApp() {
         onOpenProfileModal={handleProfileClick}
       />
 
-      {/* Main View Area (Dev Tools Discovery vs My APIs) */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-6">
+      {/* Main View Area (Tools Directory vs My APIs) */}
+      <main className="flex-1 w-full">
         {activeTab === 'devtools' ? (
-          <DevToolsDiscoveryPage />
+          <ToolsDirectoryPage />
         ) : (
-          <MyApisPage />
+          <div className="px-4 sm:px-6 lg:px-8 pt-6">
+            <MyApisPage />
+          </div>
         )}
       </main>
 

@@ -48,7 +48,7 @@ export const TopNavigation = ({
             aria-label="Main Navigation View Switcher"
             className="relative inline-flex items-center p-1 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-100 dark:border-[#262626] border-[#e5e5e5] shadow-inner"
           >
-            {/* Dev Tools Tab Button */}
+            {/* Tools Directory Tab Button */}
             <button
               type="button"
               onClick={() => setActiveTab('devtools')}
@@ -59,7 +59,7 @@ export const TopNavigation = ({
               }`}
             >
               <Compass className={`w-4 h-4 ${activeTab === 'devtools' ? 'text-blue-500' : 'text-neutral-400'}`} />
-              <span>Dev Tools</span>
+              <span>Tools Directory</span>
             </button>
 
             {/* My APIs Tab Button */}

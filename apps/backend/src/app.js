@@ -10,6 +10,7 @@ import apiKeyRoutes from "./routes/apiKey.routes.js";
 import utilityRoutes from "./routes/utility.routes.js";
 import developerRoutes from "./routes/developer.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+import toolsRoutes from "./routes/tools.routes.js";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -69,6 +70,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/keys", apiKeyRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/utilities", utilityRoutes);
+app.use("/api/tools", toolsRoutes);
 
 // Protected Developer API endpoints (v1)
 app.use("/api/v1", developerRoutes);
