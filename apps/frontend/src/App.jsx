@@ -3,22 +3,27 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import TopNavigation from './components/navigation/TopNavigation';
 import ToolsDirectoryPage from './pages/ToolsDirectoryPage';
-import MyApisPage from './pages/MyApisPage';
-import ProfileModal from './components/profile/ProfileModal';
+import MarketplacePage from './pages/MarketplacePage';
+import ProfilePage from './pages/ProfilePage';
 import AuthModal from './components/auth/AuthModal';
 import ToastContainer from './components/common/Toast';
 
 function UltraMinimalistApp() {
   const { user, isAuthModalOpen, setIsAuthModalOpen } = useApp();
-  const [activeTab, setActiveTab] = useState('devtools');
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('devtools'); // 'devtools' | 'marketplace' | 'profile'
+  const [selectedMarketplaceSlug, setSelectedMarketplaceSlug] = useState(null);
 
   const handleProfileClick = () => {
     if (user) {
-      setIsProfileModalOpen(true);
+      setActiveTab('profile');
     } else {
       setIsAuthModalOpen(true);
     }
+  };
+
+  const handleNavigateToMarketplace = (slug = null) => {
+    setSelectedMarketplaceSlug(slug);
+    setActiveTab('marketplace');
   };
 
   return (
@@ -26,17 +31,33 @@ function UltraMinimalistApp() {
       {/* Top Header with Centered Segmented Control, Theme Toggle & Avatar */}
       <TopNavigation
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          if (tab === 'marketplace') {
+            setSelectedMarketplaceSlug(null);
+          }
+          setActiveTab(tab);
+        }}
         onOpenProfileModal={handleProfileClick}
       />
 
-      {/* Main View Area (Tools Directory vs My APIs) */}
+      {/* Main View Area (Tool Discovery, API Market, Developer Profile) */}
       <main className="flex-1 w-full">
-        {activeTab === 'devtools' ? (
-          <ToolsDirectoryPage />
-        ) : (
+        {activeTab === 'devtools' && <ToolsDirectoryPage />}
+
+        {activeTab === 'marketplace' && (
           <div className="px-4 sm:px-6 lg:px-8 pt-6">
-            <MyApisPage />
+            <MarketplacePage
+              initialSlug={selectedMarketplaceSlug}
+              onNavigateToProfile={() => setActiveTab('profile')}
+            />
+          </div>
+        )}
+
+        {activeTab === 'profile' && (
+          <div className="px-4 sm:px-6 lg:px-8 pt-6">
+            <ProfilePage
+              onNavigateToMarketplace={handleNavigateToMarketplace}
+            />
           </div>
         )}
       </main>
@@ -61,11 +82,6 @@ function UltraMinimalistApp() {
         </div>
       </footer>
 
-      {/* User Profile & Settings Modal */}
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-      />
 
       {/* Authentication Modal */}
       <AuthModal

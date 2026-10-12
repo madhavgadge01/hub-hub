@@ -40,6 +40,23 @@ export async function apiFetch(endpoint, options = {}) {
   return data;
 }
 
+function toQueryString(params = {}) {
+  const clean = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      value !== "undefined" &&
+      value !== "null"
+    ) {
+      clean[key] = value;
+    }
+  }
+  const query = new URLSearchParams(clean).toString();
+  return query ? `?${query}` : "";
+}
+
 export const api = {
   // Auth
   register: (payload) => apiFetch("/api/auth/register", { method: "POST", body: payload }),
@@ -75,14 +92,8 @@ export const api = {
 
   // Section 1: Tools Directory APIs
   getToolsCategories: () => apiFetch("/api/tools/categories"),
-  getLatestTools: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return apiFetch(`/api/tools/latest${query ? `?${query}` : ""}`);
-  },
-  getTools: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return apiFetch(`/api/tools${query ? `?${query}` : ""}`);
-  },
+  getLatestTools: (params = {}) => apiFetch(`/api/tools/latest${toQueryString(params)}`),
+  getTools: (params = {}) => apiFetch(`/api/tools${toQueryString(params)}`),
   getFilterMetadata: () => apiFetch("/api/tools/filters"),
   getToolBySlug: (slug) => apiFetch(`/api/tools/${slug}`),
   getToolPricing: (slug) => apiFetch(`/api/tools/${slug}/pricing`),
@@ -104,6 +115,31 @@ export const api = {
   adminAddPlan: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/plans`, { method: "POST", body: payload }),
   adminAddFeature: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/features`, { method: "POST", body: payload }),
   adminAddSpecification: (toolId, payload) => apiFetch(`/api/tools/admin/tools/${toolId}/specifications`, { method: "POST", body: payload }),
+
+  // Section 2: Marketplace APIs
+  getMarketplaceCategories: () => apiFetch("/api/marketplace/categories"),
+  getMarketplaceApis: (params = {}) => apiFetch(`/api/marketplace/apis${toQueryString(params)}`),
+  getMarketplaceApiBySlug: (slug) => apiFetch(`/api/marketplace/apis/${slug}`),
+  getMarketplaceApiPlans: (slug) => apiFetch(`/api/marketplace/apis/${slug}/plans`),
+  getMarketplaceApiDocs: (slug) => apiFetch(`/api/marketplace/apis/${slug}/docs`),
+
+  // Section 2: Checkout & Razorpay
+  createCheckoutOrder: (payload) =>
+    apiFetch("/api/checkout/orders", { method: "POST", body: payload }),
+  verifyPayment: (payload) =>
+    apiFetch("/api/checkout/verify", { method: "POST", body: payload }),
+
+  // Section 2: User Profile & Account Dashboard
+  getProfile: () => apiFetch("/api/profile"),
+  updateProfile: (payload) =>
+    apiFetch("/api/profile", { method: "PATCH", body: payload }),
+  getUserPurchases: () => apiFetch("/api/profile/purchases"),
+  getUserPayments: () => apiFetch("/api/profile/payments"),
+  getUserEntitlements: () => apiFetch("/api/profile/entitlements"),
+  getUserUsageAnalytics: () => apiFetch("/api/profile/usage"),
+  getUserRecentActivity: (limit = 20) =>
+    apiFetch(`/api/profile/usage/recent?limit=${limit}`),
+  rotateKey: (id) => apiFetch(`/api/keys/${id}/rotate`, { method: "POST" }),
 };
 
 export default api;

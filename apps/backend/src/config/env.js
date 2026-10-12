@@ -39,4 +39,18 @@ export const env = {
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
   refreshTokenExpiry: process.env.REFRESH_TOKEN_EXPIRY || "7d",
   masterApiKey: process.env.MASTER_API_KEY || null,
+
+  // Razorpay Integration
+  razorpayKeyId: process.env.RAZORPAY_KEY_ID || null,
+  razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || null,
+  razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || null,
+
+  // Brevo Transactional Email Integration
+  brevoApiKey: process.env.BREVO_API_KEY || null,
+  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "support@hubhub.dev",
+  brevoSenderName: process.env.BREVO_SENDER_NAME || "Hub&Hub Platform",
+
+  // Application URLs
+  frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
 };
+

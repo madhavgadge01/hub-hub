@@ -1,0 +1,25 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="av1_bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="av1_accent" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="64" fill="url(#av1_bg)"/>
+  <!-- Head -->
+  <circle cx="64" cy="52" r="26" fill="#F8FAFC"/>
+  <!-- Modern Geometric Hair -->
+  <path d="M38 50C38 34 50 24 64 24C78 24 90 34 90 50C84 44 76 42 64 42C52 42 44 44 38 50Z" fill="#1E293B"/>
+  <!-- Visor / VR Tech Glasses -->
+  <rect x="46" y="46" width="36" height="12" rx="6" fill="url(#av1_accent)"/>
+  <!-- Smile -->
+  <path d="M56 64C58 67 62 69 64 69C66 69 70 67 72 64" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Shoulders / Torso -->
+  <path d="M26 112C26 88 44 78 64 78C84 78 102 88 102 112" fill="#0F172A"/>
+  <!-- Tech Collar Accent -->
+  <path d="M52 78L64 92L76 78" stroke="url(#av1_accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

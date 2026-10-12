@@ -48,52 +48,38 @@ export const TopNavigation = ({
             aria-label="Main Navigation View Switcher"
             className="relative inline-flex items-center p-1 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-100 dark:border-[#262626] border-[#e5e5e5] shadow-inner"
           >
-            {/* Tools Directory Tab Button */}
+            {/* Tool Discovery Tab Button */}
             <button
               type="button"
               onClick={() => setActiveTab('devtools')}
-              className={`relative z-10 flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
+              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
                 activeTab === 'devtools'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
                   : 'dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
               }`}
             >
               <Compass className={`w-4 h-4 ${activeTab === 'devtools' ? 'text-blue-500' : 'text-neutral-400'}`} />
-              <span>Tools Directory</span>
+              <span>Tool Discovery</span>
             </button>
 
-            {/* My APIs Tab Button */}
+            {/* API Market Tab Button */}
             <button
               type="button"
-              onClick={() => setActiveTab('my-apis')}
-              className={`relative z-10 flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
-                activeTab === 'my-apis'
+              onClick={() => setActiveTab('marketplace')}
+              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
+                activeTab === 'marketplace'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
                   : 'dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
               }`}
             >
-              <Key className={`w-4 h-4 ${activeTab === 'my-apis' ? 'text-emerald-500' : 'text-neutral-400'}`} />
-              <span>My APIs</span>
+              <Sparkles className={`w-4 h-4 ${activeTab === 'marketplace' ? 'text-purple-500' : 'text-neutral-400'}`} />
+              <span>API Market</span>
             </button>
           </nav>
         </div>
 
         {/* Right Corner: Credits Pill, Theme Toggle, User Profile Avatar */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          {/* Credits Quick Indicator */}
-          <button
-            onClick={() => setActiveTab('my-apis')}
-            type="button"
-            title="Remaining API Credits"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border dark:border-[#222222] border-[#eaeaea] dark:bg-[#0c0c0c] bg-white text-xs font-mono dark:hover:border-neutral-600 hover:border-neutral-400 transition-colors shadow-sm"
-          >
-            <Coins className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-semibold dark:text-neutral-200 text-neutral-800">
-              {credits.remaining.toLocaleString()}
-            </span>
-            <span className="text-[10px] text-neutral-400">CR</span>
-          </button>
-
           {/* Light/Dark Mode Toggle */}
           <ThemeToggle />
 
@@ -102,14 +88,16 @@ export const TopNavigation = ({
             <button
               type="button"
               onClick={onOpenProfileModal}
-              className="relative flex items-center gap-2 pl-1 group focus:outline-none"
-              title="View Developer Profile & Settings"
+              className={`relative flex items-center gap-2 pl-1 rounded-full group focus:outline-none transition-all ${
+                activeTab === 'profile' ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-black' : ''
+              }`}
+              title="View Developer Profile & Credentials"
             >
               <div className="relative">
                 <img
-                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
+                  src={user.avatar || '/avatars/avatar-1.svg'}
                   alt={user.name || 'User'}
-                  className="w-8 h-8 rounded-full border dark:border-[#333333] border-neutral-300 object-cover group-hover:ring-2 ring-blue-500/40 transition-all"
+                  className="w-8 h-8 rounded-full border dark:border-[#333333] border-neutral-300 object-cover group-hover:ring-2 ring-blue-500/40 transition-all bg-neutral-900"
                 />
                 <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 dark:ring-black ring-white" />
               </div>
@@ -118,7 +106,7 @@ export const TopNavigation = ({
             <button
               type="button"
               onClick={() => onOpenProfileModal ? onOpenProfileModal(true) : null}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
             >
               Sign In
             </button>

@@ -14,7 +14,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import Badge from '../common/Badge';
 
-export const UserProfileHeader = () => {
+export const UserProfileHeader = ({ onEditProfile }) => {
   const { user, addToast } = useApp();
   const [copiedEmail, setCopiedEmail] = useState(false);
 
@@ -86,7 +86,13 @@ export const UserProfileHeader = () => {
         {/* Right: Quick actions */}
         <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
           <button
-            onClick={() => addToast('Profile settings modal opened', 'info')}
+            onClick={() => {
+              if (onEditProfile) {
+                onEditProfile();
+              } else {
+                addToast('Profile settings modal opened', 'info');
+              }
+            }}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border dark:border-[#333333] border-[#eaeaea] dark:bg-black bg-white dark:text-neutral-300 text-neutral-700 hover:border-neutral-500 transition-all shadow-sm"
           >
             <Edit3 className="w-3.5 h-3.5" />

@@ -1,0 +1,26 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="av3_bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="64" fill="url(#av3_bg)"/>
+  <!-- Head -->
+  <circle cx="64" cy="52" r="26" fill="#FED7AA"/>
+  <!-- Curly Afro / Tech Puff -->
+  <circle cx="48" cy="34" r="14" fill="#451A03"/>
+  <circle cx="64" cy="28" r="16" fill="#451A03"/>
+  <circle cx="80" cy="34" r="14" fill="#451A03"/>
+  <circle cx="40" cy="46" r="12" fill="#451A03"/>
+  <circle cx="88" cy="46" r="12" fill="#451A03"/>
+  <!-- Eyes -->
+  <circle cx="53" cy="52" r="3" fill="#451A03"/>
+  <circle cx="75" cy="52" r="3" fill="#451A03"/>
+  <!-- Friendly Smile with Teeth -->
+  <path d="M55 64C56 69 60 71 64 71C68 71 72 69 73 64Z" fill="#78350F"/>
+  <path d="M57 64H71" stroke="white" stroke-width="2"/>
+  <!-- Torso / Jacket -->
+  <path d="M26 112C26 88 44 78 64 78C84 78 102 88 102 112" fill="#78350F"/>
+  <path d="M64 78V112" stroke="#FDE68A" stroke-width="2.5"/>
+</svg>

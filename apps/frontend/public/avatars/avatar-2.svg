@@ -1,0 +1,29 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="av2_bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="av2_hair" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#064E3B"/>
+      <stop offset="100%" stop-color="#022C22"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="64" fill="url(#av2_bg)"/>
+  <!-- Head -->
+  <circle cx="64" cy="54" r="26" fill="#FEF3C7"/>
+  <!-- Sleek Angular Bob Hair -->
+  <path d="M36 56C36 32 48 24 64 24C80 24 92 32 92 56C88 64 86 70 86 78C82 76 78 72 76 66C70 68 64 68 58 66C56 72 52 76 48 78C48 70 44 64 36 56Z" fill="url(#av2_hair)"/>
+  <!-- Glasses -->
+  <rect x="46" y="48" width="14" height="10" rx="3" stroke="#047857" stroke-width="2.5" fill="#D1FAE5" fill-opacity="0.6"/>
+  <rect x="68" y="48" width="14" height="10" rx="3" stroke="#047857" stroke-width="2.5" fill="#D1FAE5" fill-opacity="0.6"/>
+  <line x1="60" y1="53" x2="68" y2="53" stroke="#047857" stroke-width="2.5"/>
+  <!-- Eyes inside glasses -->
+  <circle cx="53" cy="53" r="2.5" fill="#064E3B"/>
+  <circle cx="75" cy="53" r="2.5" fill="#064E3B"/>
+  <!-- Smile -->
+  <path d="M57 66C59 69 62 70 64 70C66 70 69 69 71 66" stroke="#064E3B" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Torso / Hoodie -->
+  <path d="M26 114C26 90 44 80 64 80C84 80 102 90 102 114" fill="#064E3B"/>
+  <path d="M54 80V96M74 80V96" stroke="#34D399" stroke-width="2" stroke-linecap="round"/>
+</svg>

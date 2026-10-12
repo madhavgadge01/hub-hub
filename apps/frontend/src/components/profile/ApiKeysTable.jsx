@@ -1,98 +1,101 @@
 import React, { useState } from 'react';
 import {
   Key,
-  Eye,
-  EyeOff,
   Copy,
   Trash2,
   Plus,
   Shield,
   Clock,
   Activity,
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  RotateCw,
+  Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import Badge from '../common/Badge';
 import CreateKeyModal from './CreateKeyModal';
 
 export const ApiKeysTable = () => {
-  const { apiKeys, revokeApiKey, addToast } = useApp();
-  const [visibleKeyIds, setVisibleKeyIds] = useState(new Set());
+  const { apiKeys, revokeApiKey, rotateApiKey, addToast } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [keyToRevoke, setKeyToRevoke] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [rotatingId, setRotatingId] = useState(null);
 
-  const toggleVisibility = (id) => {
-    setVisibleKeyIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
+  const copyPrefix = (prefix, id) => {
+    navigator.clipboard.writeText(prefix);
+    setCopiedId(id);
+    addToast(`Key prefix "${prefix}" copied to clipboard!`, 'info');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleRotate = async (keyObj) => {
+    if (
+      window.confirm(
+        `Are you sure you want to rotate key "${keyObj.name}"? The previous secret will be revoked immediately and a new one generated.`
+      )
+    ) {
+      setRotatingId(keyObj.id);
+      try {
+        await rotateApiKey(keyObj.id);
+      } finally {
+        setRotatingId(null);
       }
-      return next;
-    });
-  };
-
-  const copyKey = (keyValue, keyName) => {
-    navigator.clipboard.writeText(keyValue);
-    addToast(`API Key "${keyName}" copied to clipboard!`, 'success');
-  };
-
-  const maskKey = (rawKey) => {
-    if (!rawKey) return '••••••••••••••••••••••••••••••••';
-    const prefix = rawKey.startsWith('dh_live_') ? 'dh_live_' : 'dh_test_';
-    return `${prefix}••••••••••••••••••••••••`;
+    }
   };
 
   const confirmRevoke = (keyObj) => {
-    if (window.confirm(`Are you sure you want to revoke key "${keyObj.name}"? Applications using this key will immediately be rejected.`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to permanently revoke key "${keyObj.name}"? Applications relying on this key will be rejected immediately.`
+      )
+    ) {
       revokeApiKey(keyObj.id);
     }
   };
 
   return (
-    <div className="rounded-xl border transition-all duration-200 dark:bg-[#070707] dark:border-[#222222] bg-white border-[#eaeaea] shadow-sm overflow-hidden">
+    <div className="rounded-2xl border transition-all duration-200 dark:bg-[#0c0c0c] dark:border-[#222222] bg-white border-[#eaeaea] shadow-sm overflow-hidden">
       {/* Table Header Controls */}
       <div className="p-5 md:p-6 border-b dark:border-[#222222] border-[#eaeaea] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <Key className="w-4 h-4 text-blue-500" />
             <h2 className="text-base font-bold tracking-tight dark:text-white text-black">
-              Active API Keys
+              Developer API Keys
             </h2>
-            <Badge variant="code" size="xs">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full dark:bg-neutral-800 bg-neutral-200 font-semibold dark:text-neutral-300 text-neutral-800">
               {apiKeys.length} {apiKeys.length === 1 ? 'key' : 'keys'}
-            </Badge>
+            </span>
           </div>
           <p className="text-xs dark:text-neutral-400 text-neutral-500 mt-1">
-            Keys are required to authenticate REST requests against all Hubs & Hubs microservices.
+            Hashed using SHA-256 with searchable prefixes. Authenticate requests using the <code className="bg-neutral-500/10 px-1 py-0.5 rounded font-mono text-[11px]">x-api-key</code> HTTP header.
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm shrink-0"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm shrink-0"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Create New Key</span>
+          <span>Generate New Key</span>
         </button>
       </div>
 
       {/* Table Content or Empty State */}
       {apiKeys.length === 0 ? (
-        <div className="py-16 px-6 text-center flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-xl dark:bg-[#111111] bg-neutral-100 border dark:border-[#333333] border-neutral-300 flex items-center justify-center mb-4 text-neutral-400">
+        <div className="py-16 px-6 text-center flex flex-col items-center justify-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl dark:bg-[#141414] bg-neutral-100 border dark:border-[#333333] border-neutral-300 flex items-center justify-center text-neutral-400">
             <Key className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-semibold dark:text-white text-black mb-1">
-            No active API keys found
+          <h3 className="text-sm font-bold dark:text-white text-black">
+            No API Keys Generated Yet
           </h3>
-          <p className="text-xs dark:text-neutral-400 text-neutral-500 max-w-sm mb-6">
-            You currently do not have any active API credentials. Generate your first API key to start connecting to developer tools and services.
+          <p className="text-xs dark:text-neutral-400 text-neutral-500 max-w-sm">
+            Generate an API key to authenticate requests against your purchased developer microservices.
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-500 transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Generate First API Key</span>
@@ -100,105 +103,128 @@ export const ApiKeysTable = () => {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b dark:border-[#222222] border-[#eaeaea] text-[11px] font-mono uppercase tracking-wider dark:text-neutral-400 text-neutral-500 dark:bg-[#0a0a0a] bg-neutral-50/50">
-                <th className="py-3 px-5 font-semibold">Key Identifier</th>
-                <th className="py-3 px-4 font-semibold">Environment</th>
-                <th className="py-3 px-4 font-semibold">Token / Secret</th>
-                <th className="py-3 px-4 font-semibold hidden md:table-cell">Created</th>
-                <th className="py-3 px-4 font-semibold hidden lg:table-cell">Rate Limit</th>
-                <th className="py-3 px-5 text-right font-semibold">Actions</th>
+          <table className="w-full text-left text-xs">
+            <thead className="dark:bg-[#111111] bg-neutral-50 border-b dark:border-[#222222] border-[#eaeaea] text-[11px] font-mono uppercase tracking-wider dark:text-neutral-400 text-neutral-500">
+              <tr>
+                <th className="py-3 px-5 font-semibold">Key Name & Product</th>
+                <th className="py-3 px-5 font-semibold">Masked Secret</th>
+                <th className="py-3 px-5 font-semibold">Quota / Allowance</th>
+                <th className="py-3 px-5 font-semibold">Last Used</th>
+                <th className="py-3 px-5 font-semibold">Status</th>
+                <th className="py-3 px-5 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y dark:divide-[#222222] divide-[#eaeaea] text-xs">
+            <tbody className="divide-y dark:divide-[#1a1a1a] divide-neutral-100 font-sans">
               {apiKeys.map((k) => {
-                const isRevoked = k.status === 'revoked' || !!k.revokedAt;
-                const formattedCreated = k.createdAt
-                  ? new Date(k.createdAt).toLocaleDateString()
-                  : k.created || 'Recently';
-                const formattedLastUsed = k.lastUsedAt
-                  ? new Date(k.lastUsedAt).toLocaleDateString()
-                  : k.lastUsed || 'Never';
-
-                const displayToken = k.maskedKey || `${k.keyPrefix || 'dh_live_'}••••••••••••••••••••••••`;
+                const isRevoked = k.status === 'revoked';
+                const hasQuota = k.requestsQuota !== null && k.requestsQuota !== undefined;
+                const quotaPercent = hasQuota
+                  ? Math.min(100, Math.round((k.requestsUsed / k.requestsQuota) * 100))
+                  : null;
 
                 return (
                   <tr
                     key={k.id}
-                    className={`group transition-colors ${
-                      isRevoked ? 'opacity-60 bg-neutral-500/5' : 'hover:bg-neutral-500/5'
+                    className={`transition-colors ${
+                      isRevoked ? 'opacity-50 dark:bg-black/30 bg-neutral-50/50' : 'hover:dark:bg-[#111111]/60 hover:bg-neutral-50'
                     }`}
                   >
-                    {/* Key Name & Last Used */}
+                    {/* Key Name & Product Scope */}
                     <td className="py-3.5 px-5">
-                      <div className="font-semibold dark:text-white text-black flex items-center gap-2">
-                        <span>{k.name}</span>
-                        {isRevoked && (
-                          <Badge variant="outline" size="xs" className="text-rose-500 border-rose-500/30">
-                            Revoked
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] dark:text-neutral-400 text-neutral-500 mt-0.5">
-                        <Clock className="w-3 h-3" />
-                        <span>Last used {formattedLastUsed}</span>
+                      <div className="space-y-0.5">
+                        <div className="font-bold dark:text-white text-black text-xs">
+                          {k.name}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] dark:text-neutral-400 text-neutral-500">
+                          <span>{k.productName || 'General Access'}</span>
+                          {k.planName && (
+                            <>
+                              <span>•</span>
+                              <span className="text-blue-400 font-mono">{k.planName}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </td>
 
-                    {/* Environment */}
-                    <td className="py-3.5 px-4">
-                      <Badge
-                        variant={isRevoked ? 'outline' : 'info'}
-                        size="xs"
-                      >
-                        {k.environment || 'Production'}
-                      </Badge>
-                    </td>
-
-                    {/* Masked Key */}
-                    <td className="py-3.5 px-4">
+                    {/* Masked Secret */}
+                    <td className="py-3.5 px-5 font-mono text-[11px]">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs dark:text-neutral-300 text-neutral-800 bg-neutral-500/10 px-2 py-1 rounded border dark:border-[#222222] border-neutral-200">
-                          {displayToken}
+                        <span className="dark:text-neutral-300 text-neutral-800 font-semibold select-all">
+                          {k.keyPrefix}••••••••
                         </span>
-
-                        {/* Copy prefix button */}
                         <button
-                          onClick={() => copyKey(k.keyPrefix || displayToken, k.name)}
                           type="button"
-                          className="p-1 rounded text-neutral-400 hover:text-blue-500 transition-colors"
-                          title="Copy key prefix"
+                          onClick={() => copyPrefix(k.keyPrefix, k.id)}
+                          className="p-1 rounded dark:hover:bg-neutral-800 hover:bg-neutral-200 text-neutral-400 hover:text-white"
+                          title="Copy searchable prefix"
                         >
-                          <Copy className="w-3.5 h-3.5" />
+                          {copiedId === k.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                         </button>
                       </div>
                     </td>
 
-                    {/* Created Date */}
-                    <td className="py-3.5 px-4 font-mono text-[11px] dark:text-neutral-400 text-neutral-500 hidden md:table-cell">
-                      {formattedCreated}
-                    </td>
-
-                    {/* Rate Limit */}
-                    <td className="py-3.5 px-4 font-mono text-[11px] dark:text-neutral-300 text-neutral-700 hidden lg:table-cell">
-                      60 req/min
-                    </td>
-
-                    {/* Action: Revoke */}
-                    <td className="py-3.5 px-5 text-right">
-                      {!isRevoked ? (
-                        <button
-                          onClick={() => confirmRevoke(k)}
-                          type="button"
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.2 rounded-md text-[11px] font-medium text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
-                          title="Revoke key permanently"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          <span className="hidden sm:inline">Revoke</span>
-                        </button>
+                    {/* Quota Progress */}
+                    <td className="py-3.5 px-5 font-mono text-[11px]">
+                      {hasQuota ? (
+                        <div className="space-y-1 w-36">
+                          <div className="flex justify-between text-[10px]">
+                            <span>{k.requestsUsed} used</span>
+                            <span className="text-neutral-400">/ {k.requestsQuota.toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className={`h-full ${quotaPercent > 90 ? 'bg-red-500' : 'bg-blue-500'}`}
+                              style={{ width: `${quotaPercent}%` }}
+                            />
+                          </div>
+                        </div>
                       ) : (
-                        <span className="text-[11px] font-mono text-neutral-500">Revoked</span>
+                        <span className="text-neutral-400 font-sans text-[11px]">Standard / Metered</span>
+                      )}
+                    </td>
+
+                    {/* Last Used */}
+                    <td className="py-3.5 px-5 text-[11px] font-mono dark:text-neutral-400 text-neutral-600">
+                      {k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : 'Never used'}
+                    </td>
+
+                    {/* Status Badge */}
+                    <td className="py-3.5 px-5">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                          isRevoked
+                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                        }`}
+                      >
+                        {isRevoked ? 'Revoked' : 'Active'}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="py-3.5 px-5 text-right">
+                      {!isRevoked && (
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleRotate(k)}
+                            disabled={rotatingId === k.id}
+                            className="p-1.5 rounded-lg border dark:border-[#333333] border-neutral-300 dark:hover:bg-neutral-800 hover:bg-neutral-200 text-neutral-400 hover:text-white transition-colors"
+                            title="Rotate Key (Re-issues secret)"
+                          >
+                            <RotateCw className={`w-3.5 h-3.5 ${rotatingId === k.id ? 'animate-spin' : ''}`} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => confirmRevoke(k)}
+                            className="p-1.5 rounded-lg border border-red-500/30 hover:bg-red-500/10 text-red-400 transition-colors"
+                            title="Revoke Key Permanently"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -209,11 +235,8 @@ export const ApiKeysTable = () => {
         </div>
       )}
 
-      {/* Creation Modal */}
-      <CreateKeyModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {/* Create Key Modal */}
+      <CreateKeyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

@@ -70,16 +70,12 @@ export const AppProvider = ({ children }) => {
         if (res.user) {
           setUser({
             ...res.user,
-            avatar:
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-            role: 'Staff Infrastructure Engineer',
-            organization: 'HyperScale Labs',
-            plan: 'Pro Developer',
+            avatar: res.user.avatar || '/avatars/avatar-1.svg',
+            role: res.user.role || 'Developer',
             memberSince: new Date(res.user.created_at || Date.now()).toLocaleDateString('en-US', {
               month: 'long',
               year: 'numeric',
             }),
-            region: 'us-east-1 (N. Virginia)',
           });
         }
       } catch {
@@ -92,13 +88,25 @@ export const AppProvider = ({ children }) => {
     checkSession();
   }, []);
 
-  // Fetch API keys whenever authenticated user changes
+  // Purchases and entitlements state
+  const [purchases, setPurchases] = useState([]);
+  const [entitlements, setEntitlements] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [purchasesLoading, setPurchasesLoading] = useState(false);
+
+  // Fetch API keys and purchases whenever authenticated user changes
   useEffect(() => {
     if (user?.id) {
       fetchApiKeys();
       fetchAnalytics();
+      fetchPurchases();
+      fetchEntitlements();
+      fetchPayments();
     } else {
       setApiKeys([]);
+      setPurchases([]);
+      setEntitlements([]);
+      setPayments([]);
     }
   }, [user?.id]);
 
@@ -116,9 +124,45 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const fetchPurchases = async () => {
+    try {
+      setPurchasesLoading(true);
+      const res = await api.getUserPurchases();
+      if (res.purchases) {
+        setPurchases(res.purchases);
+      }
+    } catch (err) {
+      console.warn('Could not fetch purchases:', err.message);
+    } finally {
+      setPurchasesLoading(false);
+    }
+  };
+
+  const fetchEntitlements = async () => {
+    try {
+      const res = await api.getUserEntitlements();
+      if (res.entitlements) {
+        setEntitlements(res.entitlements);
+      }
+    } catch (err) {
+      console.warn('Could not fetch entitlements:', err.message);
+    }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      const res = await api.getUserPayments();
+      if (res.payments) {
+        setPayments(res.payments);
+      }
+    } catch (err) {
+      console.warn('Could not fetch payments:', err.message);
+    }
+  };
+
   const fetchAnalytics = async () => {
     try {
-      const res = await api.getAnalytics();
+      const res = await api.getUserUsageAnalytics();
       if (res.analytics) {
         setAnalytics(res.analytics);
       }
@@ -133,15 +177,16 @@ export const AppProvider = ({ children }) => {
     if (res.user) {
       setUser({
         ...res.user,
-        avatar:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-        role: 'Staff Infrastructure Engineer',
-        organization: 'HyperScale Labs',
-        plan: 'Pro Developer',
-        memberSince: 'October 2026',
-        region: 'us-east-1 (N. Virginia)',
+        avatar: res.user.avatar || '/avatars/avatar-1.svg',
+        role: res.user.role || 'Developer',
+        memberSince: new Date(res.user.created_at || Date.now()).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        }),
       });
       await fetchApiKeys();
+      await fetchPurchases();
+      await fetchEntitlements();
     }
     return res;
   };
@@ -151,13 +196,12 @@ export const AppProvider = ({ children }) => {
     if (res.user) {
       setUser({
         ...res.user,
-        avatar:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-        role: 'Staff Infrastructure Engineer',
-        organization: 'HyperScale Labs',
-        plan: 'Pro Developer',
-        memberSince: 'October 2026',
-        region: 'us-east-1 (N. Virginia)',
+        avatar: res.user.avatar || '/avatars/avatar-1.svg',
+        role: res.user.role || 'Developer',
+        memberSince: new Date(res.user.created_at || Date.now()).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        }),
       });
       await fetchApiKeys();
     }
@@ -170,7 +214,23 @@ export const AppProvider = ({ children }) => {
     } catch {}
     setUser(null);
     setApiKeys([]);
+    setPurchases([]);
+    setEntitlements([]);
+    setPayments([]);
     addToast('Logged out successfully', 'info');
+  };
+
+  const updateProfileAction = async ({ name, avatar }) => {
+    const res = await api.updateProfile({ name, avatar });
+    if (res.user) {
+      setUser((prev) => ({
+        ...prev,
+        ...res.user,
+        avatar: res.user.avatar || prev?.avatar || '/avatars/avatar-1.svg',
+      }));
+      addToast('Profile updated successfully!', 'success');
+      return res.user;
+    }
   };
 
   // API Key actions calling backend
@@ -180,11 +240,27 @@ export const AppProvider = ({ children }) => {
       throw new Error('Please sign in to generate developer API keys.');
     }
 
-    const res = await api.createKey({ name: keyData.name || 'New API Key' });
+    const res = await api.createKey({
+      name: keyData.name || 'New API Key',
+      apiProductId: keyData.apiProductId || null,
+      entitlementId: keyData.entitlementId || null,
+    });
     if (res.apiKey) {
       await fetchApiKeys();
       addToast(`API Key "${res.apiKey.name}" generated successfully!`, 'success');
       return res.apiKey;
+    }
+  };
+
+  const rotateApiKeyAction = async (id) => {
+    try {
+      const res = await api.rotateKey(id);
+      await fetchApiKeys();
+      addToast('API key rotated successfully. A new secret has been issued.', 'success');
+      return res.apiKey;
+    } catch (err) {
+      addToast(err.message || 'Failed to rotate API key.', 'warning');
+      throw err;
     }
   };
 
@@ -267,6 +343,7 @@ export const AppProvider = ({ children }) => {
         login: loginAction,
         register: registerAction,
         logout: logoutAction,
+        updateProfile: updateProfileAction,
         credits,
         setCredits,
         redeemedCoupons,
@@ -276,7 +353,16 @@ export const AppProvider = ({ children }) => {
         fetchApiKeys,
         createApiKey: createApiKeyAction,
         revokeApiKey: revokeApiKeyAction,
+        rotateApiKey: rotateApiKeyAction,
+        purchases,
+        purchasesLoading,
+        entitlements,
+        payments,
+        fetchPurchases,
+        fetchEntitlements,
+        fetchPayments,
         analytics,
+        fetchAnalytics,
         compareList,
         toggleCompare,
         clearCompare,

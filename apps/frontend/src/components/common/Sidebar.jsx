@@ -26,13 +26,6 @@ export const Sidebar = ({ isOpen, onClose }) => {
       badge: null
     },
     {
-      to: '/playground',
-      name: 'Tools Playground',
-      icon: Terminal,
-      description: 'Interactive live testbench',
-      badge: 'Live'
-    },
-    {
       to: '/profile',
       name: 'Profile & Dashboard',
       icon: User,

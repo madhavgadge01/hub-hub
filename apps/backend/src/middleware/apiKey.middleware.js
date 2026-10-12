@@ -44,6 +44,8 @@ export async function verifyApiKey(req, res, next) {
         method: req.method,
         statusCode: res.statusCode,
         responseTimeMs,
+        apiProductId: keyContext.apiProductId,
+        entitlementId: keyContext.entitlementId,
       });
     });
 

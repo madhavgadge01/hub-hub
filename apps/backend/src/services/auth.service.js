@@ -48,14 +48,24 @@ export async function register({ name, email, password }) {
   // 2. Hash password securely
   const passwordHash = await hashPassword(password);
 
+  // Deterministically select one of the 4 curated default avatars
+  const defaultAvatars = [
+    "/avatars/avatar-1.svg",
+    "/avatars/avatar-2.svg",
+    "/avatars/avatar-3.svg",
+    "/avatars/avatar-4.svg",
+  ];
+  const charSum = normalizedEmail.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const assignedAvatar = defaultAvatars[charSum % defaultAvatars.length];
+
   // 3. Create user record
   const userRes = await pool.query(
     `
-    INSERT INTO users (name, email, password_hash)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, email, created_at;
+    INSERT INTO users (name, email, password_hash, avatar)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, email, avatar, role, created_at;
     `,
-    [normalizedName, normalizedEmail, passwordHash]
+    [normalizedName, normalizedEmail, passwordHash, assignedAvatar]
   );
 
   const user = userRes.rows[0];
@@ -79,6 +89,8 @@ export async function register({ name, email, password }) {
       id: user.id,
       name: user.name,
       email: user.email,
+      avatar: user.avatar || assignedAvatar,
+      role: user.role || "user",
       createdAt: user.created_at,
     },
     accessToken,
@@ -99,7 +111,7 @@ export async function login({ email, password }) {
   // Find user by normalized email
   const userRes = await pool.query(
     `
-    SELECT id, name, email, password_hash
+    SELECT id, name, email, avatar, role, password_hash
     FROM users
     WHERE email = $1
     LIMIT 1;
@@ -143,6 +155,8 @@ export async function login({ email, password }) {
       id: user.id,
       name: user.name,
       email: user.email,
+      avatar: user.avatar || "/avatars/avatar-1.svg",
+      role: user.role || "user",
     },
     accessToken,
     refreshToken,
@@ -227,7 +241,7 @@ export async function logout(sessionId) {
 export async function getCurrentUser(userId) {
   const userRes = await pool.query(
     `
-    SELECT id, name, email, created_at, last_login_at
+    SELECT id, name, email, avatar, role, created_at, last_login_at
     FROM users
     WHERE id = $1
     LIMIT 1;
@@ -240,5 +254,9 @@ export async function getCurrentUser(userId) {
     throw new ApiError(404, "User not found.");
   }
 
-  return user;
+  return {
+    ...user,
+    avatar: user.avatar || "/avatars/avatar-1.svg",
+    role: user.role || "user",
+  };
 }

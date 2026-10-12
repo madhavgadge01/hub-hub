@@ -7,7 +7,9 @@ import {
   FileText,
   Key,
   Layers,
-  ArrowRight
+  ArrowRight,
+  PlayCircle,
+  ExternalLink,
 } from 'lucide-react';
 import Badge from '../common/Badge';
 import { useApp } from '../../context/AppContext';
@@ -16,44 +18,61 @@ export const ApiCard = ({
   api,
   viewMode = 'grid',
   onViewDocs,
-  onGetKey
+  onTryPlayground,
+  onGetKey,
 }) => {
   const { compareList, toggleCompare } = useApp();
   const isCompared = compareList.some((item) => item.id === api.id);
 
+  const priceBadgeText = api.has_free_plan
+    ? 'Free Tier Available'
+    : api.min_price > 0
+    ? `From ₹${(api.min_price / 100).toLocaleString('en-IN')}/mo`
+    : 'Free Tier';
+
   if (viewMode === 'list') {
     return (
-      <div className="rounded-xl border p-4 transition-all duration-200 dark:bg-[#070707] dark:border-[#222222] bg-white border-[#eaeaea] hover:border-neutral-500 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Left Section: Info */}
-        <div className="flex-1 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-bold tracking-tight dark:text-white text-black">
-              {api.name}
-            </h3>
-            <Badge variant="code" size="xs">
-              {api.version}
-            </Badge>
-            <Badge variant="outline" size="xs">
-              {api.category}
-            </Badge>
-            {api.badge && (
-              <Badge variant="info" size="xs">
-                {api.badge}
-              </Badge>
-            )}
+      <div className="rounded-2xl border p-4 sm:p-5 transition-all duration-200 dark:bg-[#0c0c0c] dark:border-[#222222] bg-white border-[#eaeaea] hover:border-neutral-500 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Left Section: Icon & Info */}
+        <div className="flex items-start sm:items-center gap-4 flex-1">
+          <div className="w-12 h-12 rounded-xl p-2 dark:bg-[#18181b] bg-neutral-100 border dark:border-[#2e2e2e] border-neutral-200 shadow-inner flex items-center justify-center shrink-0">
+            <img
+              src={api.icon_url || '/icons/api-qrcode.svg'}
+              alt={api.name}
+              className="w-full h-full object-contain pointer-events-none"
+            />
           </div>
 
-          <p className="text-xs dark:text-neutral-400 text-neutral-600 line-clamp-1">
-            {api.description}
-          </p>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-bold tracking-tight dark:text-white text-black">
+                {api.name}
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full dark:bg-neutral-800 bg-neutral-100 font-semibold text-neutral-400">
+                {api.version || 'v1.0.0'}
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
+                {api.category_name || api.category}
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                {priceBadgeText}
+              </span>
+            </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono dark:text-neutral-400 text-neutral-500 pt-1">
-            <span className="flex items-center gap-1">
-              <code className="text-blue-500 font-semibold">{api.endpoint}</code>
-            </span>
-            <span>⚡ {api.latency}</span>
-            <span>🟢 {api.uptime} uptime</span>
-            <span>{api.costPer1k}</span>
+            <p className="text-xs dark:text-neutral-400 text-neutral-600 line-clamp-1 max-w-2xl">
+              {api.description}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs font-mono dark:text-neutral-400 text-neutral-500 pt-1">
+              <span className="text-blue-500 font-semibold">
+                {api.http_method || 'POST'} {api.endpoint_path || api.endpoint}
+              </span>
+              <span>⚡ Sub-15ms edge</span>
+              <span>🟢 99.99% uptime</span>
+              {api.usage_count > 0 && (
+                <span className="text-purple-400">🔥 {api.usage_count.toLocaleString()} calls</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -72,22 +91,24 @@ export const ApiCard = ({
             <span>{isCompared ? 'Comparing' : 'Compare'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => onViewDocs(api)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border dark:border-[#333333] border-[#eaeaea] dark:text-neutral-300 text-neutral-700 hover:border-neutral-500 transition-colors shadow-sm"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Docs</span>
-          </button>
+          {onTryPlayground && (
+            <button
+              type="button"
+              onClick={() => onTryPlayground(api)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border dark:border-[#333333] border-[#eaeaea] dark:text-neutral-300 text-neutral-700 hover:border-neutral-500 transition-colors shadow-sm"
+            >
+              <PlayCircle className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Sandbox</span>
+            </button>
+          )}
 
           <button
             type="button"
-            onClick={() => onGetKey(api)}
+            onClick={() => onViewDocs(api)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
           >
-            <Key className="w-3.5 h-3.5" />
-            <span>Get API Key</span>
+            <span>Details & Plans</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -96,22 +117,28 @@ export const ApiCard = ({
 
   // Grid Card View
   return (
-    <div className="rounded-xl border p-5 transition-all duration-200 dark:bg-[#070707] dark:border-[#222222] bg-white border-[#eaeaea] hover:border-neutral-500/80 shadow-sm flex flex-col justify-between group">
+    <div className="rounded-2xl border p-5 transition-all duration-200 dark:bg-[#0c0c0c] dark:border-[#222222] bg-white border-[#eaeaea] hover:border-neutral-500/80 hover:shadow-lg shadow-sm flex flex-col justify-between group">
       <div>
-        {/* Top bar with category & compare checkbox */}
+        {/* Top bar with icon, category & compare toggle */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-1.5">
-            <Badge variant="outline" size="xs">
-              {api.category}
-            </Badge>
-            {api.badge && (
-              <Badge variant="info" size="xs">
-                {api.badge}
-              </Badge>
-            )}
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl p-2 dark:bg-[#18181b] bg-neutral-100 border dark:border-[#2e2e2e] border-neutral-200 shadow-sm flex items-center justify-center">
+              <img
+                src={api.icon_url || '/icons/api-qrcode.svg'}
+                alt={api.name}
+                className="w-full h-full object-contain pointer-events-none group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider font-semibold text-blue-500 block">
+                {api.category_name || api.category}
+              </span>
+              <span className="text-[10px] font-mono text-neutral-400">
+                {api.provider_name || 'Hub&Hub Edge'}
+              </span>
+            </div>
           </div>
 
-          {/* Compare toggle pill */}
           <button
             type="button"
             onClick={() => toggleCompare(api)}
@@ -128,56 +155,61 @@ export const ApiCard = ({
 
         {/* Title and version */}
         <div className="flex items-baseline justify-between gap-2 mb-2">
-          <h3 className="text-base font-bold tracking-tight dark:text-white text-black group-hover:text-blue-500 transition-colors">
+          <h3 className="text-base font-bold tracking-tight dark:text-white text-black group-hover:text-blue-500 transition-colors line-clamp-1">
             {api.name}
           </h3>
-          <Badge variant="code" size="xs">
-            {api.version}
-          </Badge>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded dark:bg-neutral-800 bg-neutral-100 dark:text-neutral-400 text-neutral-600 font-semibold shrink-0">
+            {api.version || 'v1.0.0'}
+          </span>
         </div>
 
         {/* Description */}
-        <p className="text-xs dark:text-neutral-400 text-neutral-600 line-clamp-3 mb-4 leading-relaxed">
+        <p className="text-xs dark:text-neutral-400 text-neutral-600 line-clamp-2 mb-4 leading-relaxed">
           {api.description}
         </p>
 
         {/* Endpoint path pill */}
-        <div className="p-2 rounded-lg font-mono text-[11px] dark:bg-[#111111] dark:border-[#222222] bg-neutral-100 border-[#eaeaea] border mb-4 truncate text-neutral-300">
-          <span className="text-emerald-500 font-semibold mr-1.5">{api.methods[0]}</span>
-          <span className="dark:text-neutral-300 text-neutral-800">{api.endpoint}</span>
+        <div className="p-2 rounded-xl font-mono text-[11px] dark:bg-[#141414] dark:border-[#222222] bg-neutral-100 border-[#eaeaea] border mb-4 truncate text-neutral-300 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 truncate">
+            <span className="text-emerald-500 font-bold">{api.http_method || 'POST'}</span>
+            <span className="dark:text-neutral-300 text-neutral-800 truncate">
+              {api.endpoint_path || api.endpoint}
+            </span>
+          </div>
+          <span className="text-[10px] text-neutral-500 shrink-0 font-sans">
+            {api.rate_limit_per_minute || 60} req/m
+          </span>
         </div>
 
-        {/* Telemetry specs: Latency & Rate Limit */}
-        <div className="grid grid-cols-2 gap-2 text-[11px] font-mono dark:text-neutral-400 text-neutral-500 pb-4 border-b dark:border-[#222222] border-[#eaeaea]">
-          <div>
-            <span className="block text-[10px] uppercase dark:text-neutral-400 text-neutral-500">Latency</span>
-            <span className="font-semibold dark:text-neutral-200 text-neutral-800">{api.latency}</span>
-          </div>
-          <div>
-            <span className="block text-[10px] uppercase dark:text-neutral-400 text-neutral-500">Uptime</span>
-            <span className="font-semibold dark:text-emerald-400 text-emerald-600">{api.uptime}</span>
-          </div>
+        {/* Pricing Summary Badge */}
+        <div className="flex items-center justify-between text-xs pb-4 border-b dark:border-[#222222] border-[#eaeaea]">
+          <span className="text-[11px] font-mono text-neutral-400">Pricing Model:</span>
+          <span className="font-semibold text-xs text-emerald-500 font-mono">
+            {priceBadgeText}
+          </span>
         </div>
       </div>
 
-      {/* Card Footer: Buttons */}
+      {/* Card Footer Actions */}
       <div className="pt-4 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => onViewDocs(api)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border dark:border-[#333333] border-[#eaeaea] dark:bg-black bg-white dark:text-neutral-300 text-neutral-700 hover:border-neutral-500 transition-colors shadow-sm"
-        >
-          <FileText className="w-3.5 h-3.5" />
-          <span>View Docs</span>
-        </button>
+        {onTryPlayground && (
+          <button
+            type="button"
+            onClick={() => onTryPlayground(api)}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border dark:border-[#333333] border-[#eaeaea] dark:bg-[#111111] bg-white dark:text-neutral-300 text-neutral-700 hover:border-neutral-500 transition-colors shadow-sm"
+          >
+            <PlayCircle className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Sandbox</span>
+          </button>
+        )}
 
         <button
           type="button"
-          onClick={() => onGetKey(api)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
+          onClick={() => onViewDocs(api)}
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
         >
-          <Key className="w-3.5 h-3.5" />
-          <span>Get API Key</span>
+          <span>View Details</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

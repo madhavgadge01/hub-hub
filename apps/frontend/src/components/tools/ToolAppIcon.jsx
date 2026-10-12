@@ -61,7 +61,7 @@ export const ToolAppIcon = ({
             src={tool.icon_url}
             alt={`${tool.name} logo`}
             onError={() => setImageError(true)}
-            className="w-full h-full object-contain filter transition-transform duration-200 group-hover:scale-105 pointer-events-none"
+            className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-105 pointer-events-none"
             loading="lazy"
           />
         ) : (
