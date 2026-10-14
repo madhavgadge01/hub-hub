@@ -2,22 +2,17 @@ import { ApiError } from "../utils/apiError.js";
 import { env } from "../config/env.js";
 import pool from "../config/db.js";
 
-/**
- * Middleware ensuring the requester has administrative privileges.
- * Supports:
- * 1. Authenticated session user with role = 'admin' (or dev admin bypass)
- * 2. Master API key header (x-api-key matching MASTER_API_KEY)
- */
+
 export async function requireAdmin(req, res, next) {
   try {
-    // 1. Check for master API key bypass if provided
+    
     const apiKeyHeader = req.headers["x-api-key"];
     if (apiKeyHeader && env.masterApiKey && apiKeyHeader === env.masterApiKey) {
       req.isAdmin = true;
       return next();
     }
 
-    // 2. Check authenticated user from verifyAuth
+
     if (!req.user || !req.user.id) {
       throw new ApiError(401, "Authentication required to access administrator functions.");
     }
