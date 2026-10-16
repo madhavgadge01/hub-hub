@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Sparkles,
@@ -26,6 +27,13 @@ export const ApiDetailPage = ({
   onNavigateToProfile = null,
 }) => {
   const { user, entitlements, addToast, setIsAuthModalOpen } = useApp();
+  const navigate = useNavigate();
+  const params = useParams();
+
+  const activeSlug = slug || params.slug;
+  const handleBack = onBack || (() => navigate('/api-market'));
+  const handleNavigateToProfile = onNavigateToProfile || (() => navigate('/profile/api-keys'));
+
   const [product, setProduct] = useState(initialProduct);
   const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);
@@ -40,16 +48,16 @@ export const ApiDetailPage = ({
 
   // Check if current authenticated user has an active entitlement for this product
   const userEntitlement = entitlements?.find(
-    (e) => e.product?.slug === slug || e.product?.id === product?.id
+    (e) => e.product?.slug === activeSlug || e.product?.id === product?.id
   );
 
   useEffect(() => {
-    if (!slug) return;
+    if (!activeSlug) return;
     const fetchApiDetails = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await api.getMarketplaceApiBySlug(slug);
+        const res = await api.getMarketplaceApiBySlug(activeSlug);
         if (res.api) {
           setProduct(res.api);
         } else {
@@ -63,36 +71,36 @@ export const ApiDetailPage = ({
     };
 
     fetchApiDetails();
-  }, [slug]);
+  }, [activeSlug]);
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto py-24 text-center space-y-4 animate-fade-in px-4">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-xs font-mono text-neutral-400">Loading API specifications from PostgreSQL...</p>
+      <div className="max-w-7xl mx-auto py-32 text-center space-y-4 animate-fade-in px-4">
+        <div className="w-8 h-8 border-2 border-neutral-300 dark:border-neutral-600 border-t-neutral-900 dark:border-t-white rounded-full animate-spin mx-auto" />
+        <p className="text-sm font-medium text-neutral-500 tracking-tight">Syncing API specifications...</p>
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="max-w-4xl mx-auto py-16 px-4 text-center space-y-4 animate-fade-in">
-        <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
-          <AlertCircle className="w-6 h-6" />
+      <div className="max-w-3xl mx-auto py-24 px-4 text-center space-y-5 animate-fade-in">
+        <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center justify-center mx-auto text-red-500">
+          <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-base font-bold dark:text-white text-black">
+        <h2 className="text-2xl font-bold tracking-tight dark:text-white text-neutral-900">
           API Product Unavailable
         </h2>
-        <p className="text-xs dark:text-neutral-400 text-neutral-500">
-          {error || 'Unable to retrieve API details.'}
+        <p className="text-base font-medium dark:text-neutral-400 text-neutral-500 max-w-md mx-auto">
+          {error || 'Unable to retrieve API details. It might have been moved or deleted.'}
         </p>
         <button
           type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity"
+          onClick={handleBack}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:scale-105 transition-transform"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to API Market</span>
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Catalog</span>
         </button>
       </div>
     );
@@ -161,159 +169,163 @@ print(response.json())`;
   };
 
   return (
-    <div className="max-w-7xl mx-auto pb-24 animate-fade-in space-y-8 px-4 sm:px-6 lg:px-8 pt-2">
-      {/* Back button and breadcrumbs */}
-      <div className="flex items-center justify-between gap-4 border-b dark:border-[#1f1f1f] border-[#eaeaea] pb-4">
-        <div className="flex items-center gap-2 text-xs font-mono dark:text-neutral-400 text-neutral-500">
+    <div className="max-w-7xl mx-auto pb-24 animate-fade-in space-y-10 px-4 sm:px-6 lg:px-8 pt-6">
+      
+      {/* Top Navigation & Breadcrumbs */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <div className="flex items-center gap-2.5 text-sm font-medium dark:text-neutral-400 text-neutral-500">
           <button
             type="button"
-            onClick={onBack}
-            className="flex items-center gap-1.5 hover:text-blue-500 font-semibold transition-colors"
+            onClick={handleBack}
+            className="flex items-center gap-1.5 hover:text-neutral-900 dark:hover:text-white transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>API Market</span>
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span>Catalog</span>
           </button>
-          <span>/</span>
-          <span className="text-neutral-400">{product.category_name || product.category?.name || 'Category'}</span>
-          <span>/</span>
-          <span className="dark:text-white text-black font-bold">{product.name}</span>
+          <span className="text-neutral-300 dark:text-neutral-700">/</span>
+          <span>{product.category_name || product.category?.name || 'Category'}</span>
+          <span className="text-neutral-300 dark:text-neutral-700">/</span>
+          <span className="dark:text-white text-neutral-900 font-semibold">{product.name}</span>
         </div>
 
         {/* Access Status Pill */}
         {userEntitlement ? (
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/30 shadow-sm">
+            <CheckCircle2 className="w-4 h-4" />
             <span>
-              Active Plan: {userEntitlement.plan?.name} ({userEntitlement.remainingRequests?.toLocaleString()} req left)
+              Plan: {userEntitlement.plan?.name} • {userEntitlement.remainingRequests?.toLocaleString()} reqs left
             </span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono dark:bg-neutral-900 bg-neutral-100 dark:text-neutral-400 text-neutral-600 border dark:border-[#262626] border-neutral-200">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>Free Tier & Sandbox Available</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold dark:bg-white/5 bg-neutral-100 dark:text-neutral-300 text-neutral-700 border dark:border-white/10 border-neutral-200 shadow-sm">
+            <Sparkles className="w-4 h-4 text-blue-500" />
+            <span>Free Tier Available</span>
           </div>
         )}
       </div>
 
-      {/* Hero Header Card */}
-      <div className="relative rounded-3xl border p-6 sm:p-8 dark:bg-gradient-to-br dark:from-[#0d131f] dark:via-[#090d16] dark:to-black bg-gradient-to-br from-blue-50/70 via-white to-neutral-50 dark:border-[#222938] border-neutral-200 shadow-lg overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-3 dark:bg-[#141416] bg-white border dark:border-[#2a2a2e] border-neutral-200 shadow-md flex items-center justify-center shrink-0">
+      {/* Hero Header Card (Premium Minimalist) */}
+      <div className="relative rounded-[2rem] border p-8 sm:p-10 lg:p-12 dark:bg-[#0c0c0c] bg-white border-neutral-200 dark:border-[#222222] shadow-sm overflow-hidden">
+        
+        {/* Subtle background glow */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/5 dark:bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            {/* Soft shadow icon container */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.5rem] p-4 dark:bg-[#141414] bg-neutral-50 border dark:border-[#2a2a2e] border-neutral-200 shadow-sm flex items-center justify-center shrink-0">
               <img
                 src={product.icon_url || '/icons/api-qrcode.svg'}
                 alt={product.name}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain drop-shadow-sm"
               />
             </div>
 
-            <div className="space-y-1.5 max-w-2xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight dark:text-white text-neutral-950">
+            <div className="space-y-3 max-w-2xl mt-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tighter dark:text-white text-neutral-900">
                   {product.name}
                 </h1>
-                <span className="text-xs font-mono px-2 py-0.5 rounded-full dark:bg-neutral-800 bg-neutral-200 dark:text-neutral-300 text-neutral-800 font-semibold">
+                <span className="text-xs font-bold px-3 py-1 rounded-full dark:bg-neutral-800 bg-neutral-100 dark:text-neutral-300 text-neutral-600">
                   {product.version || 'v1.0.0'}
-                </span>
-                <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
-                  {product.category_name || product.category?.name}
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm dark:text-neutral-300 text-neutral-600 leading-relaxed">
+              <p className="text-base font-medium dark:text-neutral-400 text-neutral-600 leading-relaxed tracking-tight">
                 {product.overview || product.description}
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs font-mono dark:text-neutral-400 text-neutral-500 pt-1">
-                <span>By {product.provider_name || 'Kruu Edge'}</span>
-                <span>•</span>
-                <span className="text-emerald-500 font-semibold">⚡ Sub-15ms Edge Latency</span>
-                <span>•</span>
-                <span className="text-blue-400 font-semibold">🔒 TLS 1.3 Certified</span>
-                <span>•</span>
-                <span>99.99% Gateway SLA</span>
+              <div className="flex flex-wrap items-center gap-4 text-sm font-medium dark:text-neutral-400 text-neutral-500 pt-2">
+                <span className="text-neutral-900 dark:text-neutral-200">By {product.provider_name || 'Kruu Edge'}</span>
+                <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <Zap className="w-4 h-4" /> Sub-15ms Latency
+                </span>
+                <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="w-4 h-4 text-blue-500" /> TLS 1.3 Certified
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full sm:w-auto md:w-56">
+          {/* Action CTAs - Pill Shaped */}
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full sm:w-auto lg:w-64 pt-2 lg:pt-0">
             <button
               type="button"
               onClick={() => setActiveTab('playground')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm ${
+              className={`px-6 py-3.5 rounded-full text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
                 activeTab === 'playground'
-                  ? 'bg-blue-600 text-white shadow-blue-600/25 ring-2 ring-blue-500/40'
-                  : 'dark:bg-[#141416] bg-white border dark:border-[#333333] border-neutral-300 dark:text-white text-black hover:border-neutral-500'
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-md'
+                  : 'bg-neutral-100 dark:bg-[#1a1a1a] text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-[#222222]'
               }`}
             >
-              <Terminal className="w-4 h-4 text-emerald-400" />
+              <Terminal className="w-4 h-4" />
               <span>Open Playground</span>
             </button>
 
             {userEntitlement ? (
-              onNavigateToProfile && (
-                <button
-                  type="button"
-                  onClick={onNavigateToProfile}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold border dark:border-emerald-500/40 border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>Manage API Key</span>
-                </button>
-              )
+              <button
+                type="button"
+                onClick={handleNavigateToProfile}
+                className="px-6 py-3.5 rounded-full text-sm font-semibold border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center gap-2"
+              >
+                <Key className="w-4 h-4" />
+                <span>Manage API Key</span>
+              </button>
             ) : (
               <button
                 type="button"
                 onClick={() => setActiveTab('pricing')}
-                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 transition-all"
+                className="px-6 py-3.5 rounded-full text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
                 <CreditCard className="w-4 h-4" />
-                <span>Get Access & Plans</span>
+                <span>View Access Plans</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Quick Specs Strip */}
-        <div className="mt-6 pt-5 border-t dark:border-white/10 border-black/5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-          <div className="p-3 rounded-xl dark:bg-[#080b12] bg-white/70 border dark:border-[#1a2333] border-neutral-200">
-            <span className="text-[10px] text-neutral-400 block uppercase">Endpoint Path</span>
-            <span className="font-semibold text-emerald-500 truncate block">
-              {product.http_method || 'POST'} {product.endpoint_path}
+        {/* Quick Specs Strip - Glassy feel */}
+        <div className="mt-10 pt-6 border-t dark:border-white/10 border-black/5 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 rounded-2xl dark:bg-[#121212] bg-neutral-50/80 border border-transparent dark:border-white/5">
+            <span className="text-[11px] font-bold text-neutral-400 block uppercase tracking-wider mb-1">Endpoint</span>
+            <span className="font-semibold text-sm text-neutral-900 dark:text-white truncate block">
+              <span className="text-blue-500 mr-1">{product.http_method || 'POST'}</span>
+              {product.endpoint_path}
             </span>
           </div>
 
-          <div className="p-3 rounded-xl dark:bg-[#080b12] bg-white/70 border dark:border-[#1a2333] border-neutral-200">
-            <span className="text-[10px] text-neutral-400 block uppercase">Default Rate Limit</span>
-            <span className="font-semibold dark:text-neutral-200 text-neutral-800">
-              {product.rate_limit_per_minute || 60} req / min
+          <div className="p-4 rounded-2xl dark:bg-[#121212] bg-neutral-50/80 border border-transparent dark:border-white/5">
+            <span className="text-[11px] font-bold text-neutral-400 block uppercase tracking-wider mb-1">Rate Limit</span>
+            <span className="font-semibold text-sm text-neutral-900 dark:text-white block">
+              {product.rate_limit_per_minute || 60} requests / min
             </span>
           </div>
 
-          <div className="p-3 rounded-xl dark:bg-[#080b12] bg-white/70 border dark:border-[#1a2333] border-neutral-200">
-            <span className="text-[10px] text-neutral-400 block uppercase">Pricing Model</span>
-            <span className="font-semibold text-blue-400">
-              {product.has_free_plan ? 'Free Tier + Paid' : 'Metered / Prepaid'}
+          <div className="p-4 rounded-2xl dark:bg-[#121212] bg-neutral-50/80 border border-transparent dark:border-white/5">
+            <span className="text-[11px] font-bold text-neutral-400 block uppercase tracking-wider mb-1">Pricing Model</span>
+            <span className="font-semibold text-sm text-neutral-900 dark:text-white block">
+              {product.has_free_plan ? 'Free Tier Available' : 'Subscription Based'}
             </span>
           </div>
 
-          <div className="p-3 rounded-xl dark:bg-[#080b12] bg-white/70 border dark:border-[#1a2333] border-neutral-200">
-            <span className="text-[10px] text-neutral-400 block uppercase">Sandbox Execution</span>
-            <span className="font-semibold text-emerald-400">
-              Live Edge Ready
+          <div className="p-4 rounded-2xl dark:bg-[#121212] bg-neutral-50/80 border border-transparent dark:border-white/5">
+            <span className="text-[11px] font-bold text-neutral-400 block uppercase tracking-wider mb-1">Status</span>
+            <span className="font-semibold text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Active & Live
             </span>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-1 border-b dark:border-[#222222] border-[#eaeaea] text-xs font-semibold overflow-x-auto">
+      {/* Navigation Tabs - Apple Style Segmented-ish */}
+      <div className="flex items-center gap-6 border-b dark:border-[#222222] border-[#eaeaea] overflow-x-auto no-scrollbar">
         {[
-          { id: 'playground', label: 'Interactive Sandbox & Playground', icon: Terminal },
-          { id: 'docs', label: 'Documentation & Endpoints', icon: Code2 },
-          { id: 'pricing', label: 'Pricing Plans & Quotas', icon: CreditCard },
-          { id: 'features', label: 'Features & Architecture', icon: Zap },
+          { id: 'playground', label: 'Playground', icon: Terminal },
+          { id: 'docs', label: 'Documentation', icon: Code2 },
+          { id: 'pricing', label: 'Pricing & Quotas', icon: CreditCard },
+          { id: 'features', label: 'Features', icon: Zap },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -322,13 +334,13 @@ print(response.json())`;
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-3 px-4 border-b-2 font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 py-4 border-b-2 font-semibold transition-all whitespace-nowrap text-sm ${
                 isActive
-                  ? 'border-blue-500 text-blue-500 dark:text-blue-400 font-bold'
-                  : 'border-transparent dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
+                  ? 'border-neutral-900 text-neutral-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
             </button>
           );
@@ -337,28 +349,28 @@ print(response.json())`;
 
       {/* Tab 1: Integrated API Playground */}
       {activeTab === 'playground' && (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in">
           <ApiPlaygroundWidget product={product} />
 
           {/* Guide banner for acquiring access if required */}
           {!userEntitlement && (
-            <div className="rounded-2xl border dark:bg-[#0e121a] bg-blue-50/50 dark:border-blue-900/40 border-blue-200 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-500 dark:text-blue-400">
-                  <Sparkles className="w-4 h-4" />
-                  <span>Ready for Production Integration?</span>
+            <div className="rounded-3xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-base font-bold text-blue-700 dark:text-blue-400 tracking-tight">
+                  <Sparkles className="w-5 h-5" />
+                  <span>Ready to integrate into your app?</span>
                 </div>
-                <p className="text-xs dark:text-neutral-300 text-neutral-600 max-w-2xl leading-relaxed">
-                  The sandbox above executes in live testbench mode. To integrate into your backend application with an API key, subscribe to any plan below to receive high-throughput credentials.
+                <p className="text-sm font-medium dark:text-neutral-300 text-neutral-600 max-w-2xl leading-relaxed">
+                  The interactive sandbox above runs on our live edge network. To use this API in your own backend, grab an API key by subscribing to a free or paid plan.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('pricing')}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shrink-0 shadow-sm"
+                className="px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white shrink-0 transition-colors shadow-sm"
               >
-                <span>View Plans & Subscribe</span>
+                View Pricing Plans
               </button>
             </div>
           )}
@@ -367,47 +379,44 @@ print(response.json())`;
 
       {/* Tab 2: Documentation & Endpoints */}
       {activeTab === 'docs' && (
-        <div className="space-y-8">
+        <div className="space-y-10 animate-fade-in max-w-5xl">
+          
           {/* Endpoint Banner */}
-          <div className="p-4 rounded-2xl border dark:bg-[#0c0c0c] bg-neutral-50 dark:border-[#222222] border-neutral-200 space-y-2">
-            <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider block">
-              RESTful Endpoint
-            </span>
-            <div className="flex items-center gap-2 font-mono text-xs flex-wrap">
-              <span className="px-2.5 py-1 rounded-md font-bold bg-blue-600 text-white text-[11px]">
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">API Endpoint</h3>
+            <div className="p-5 rounded-2xl border dark:bg-[#121212] bg-neutral-50 dark:border-[#222222] border-neutral-200 flex items-center gap-3 overflow-x-auto">
+              <span className="px-3 py-1 rounded-lg font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-sm">
                 {product.http_method || 'POST'}
               </span>
-              <span className="dark:text-neutral-200 text-neutral-900 font-semibold select-all text-sm">
+              <span className="dark:text-neutral-200 text-neutral-900 font-mono font-medium text-sm sm:text-base whitespace-nowrap">
                 https://api.kruu.dev{product.base_url || '/api/v1'}{product.endpoint_path}
               </span>
             </div>
           </div>
 
-          {/* Headers */}
-          <div>
-            <h3 className="text-xs uppercase font-mono tracking-wider text-neutral-400 mb-2 font-semibold">
-              Authentication & Headers
-            </h3>
-            <div className="rounded-xl border overflow-hidden dark:border-[#222222] border-neutral-200 text-xs">
-              <table className="w-full text-left font-mono text-[11px]">
-                <thead className="dark:bg-[#141414] bg-neutral-100 dark:text-neutral-400 text-neutral-600">
+          {/* Headers Table */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">Headers</h3>
+            <div className="rounded-2xl border overflow-hidden dark:border-[#222222] border-neutral-200">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-neutral-50 dark:bg-[#121212] text-neutral-500 dark:text-neutral-400 border-b dark:border-[#222222] border-neutral-200">
                   <tr>
-                    <th className="p-3">Header</th>
-                    <th className="p-3">Required</th>
-                    <th className="p-3">Description</th>
+                    <th className="p-4 font-semibold uppercase tracking-wider text-xs">Header</th>
+                    <th className="p-4 font-semibold uppercase tracking-wider text-xs">Required</th>
+                    <th className="p-4 font-semibold uppercase tracking-wider text-xs">Description</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y dark:divide-[#222222] divide-neutral-200 dark:bg-[#0a0a0a] bg-white">
+                <tbody className="divide-y dark:divide-[#222222] divide-neutral-200 bg-white dark:bg-[#0c0c0c]">
                   <tr>
-                    <td className="p-3 text-blue-400 font-semibold">Content-Type</td>
-                    <td className="p-3 text-emerald-400">Yes</td>
-                    <td className="p-3 dark:text-neutral-300 text-neutral-700">application/json</td>
+                    <td className="p-4 font-mono font-medium text-neutral-900 dark:text-white">Content-Type</td>
+                    <td className="p-4 text-emerald-600 dark:text-emerald-400 font-medium">Yes</td>
+                    <td className="p-4 text-neutral-600 dark:text-neutral-300">application/json</td>
                   </tr>
                   <tr>
-                    <td className="p-3 text-blue-400 font-semibold">x-api-key</td>
-                    <td className="p-3 text-amber-400">Yes (Production)</td>
-                    <td className="p-3 dark:text-neutral-300 text-neutral-700">
-                      Your issued Kruu developer secret key (e.g. <code className="bg-neutral-500/10 px-1 py-0.5 rounded">dh_live_...</code>)
+                    <td className="p-4 font-mono font-medium text-neutral-900 dark:text-white">x-api-key</td>
+                    <td className="p-4 text-emerald-600 dark:text-emerald-400 font-medium">Yes</td>
+                    <td className="p-4 text-neutral-600 dark:text-neutral-300">
+                      Your unique developer API key.
                     </td>
                   </tr>
                 </tbody>
@@ -417,31 +426,32 @@ print(response.json())`;
 
           {/* Request Body Schema */}
           {doc.requestBodySchema && (
-            <div>
-              <h3 className="text-xs uppercase font-mono tracking-wider text-neutral-400 mb-2 font-semibold">
-                Request Parameters Schema
-              </h3>
-              <div className="rounded-xl border p-4 dark:bg-[#0c0c0c] bg-white dark:border-[#222222] border-neutral-200 space-y-3">
-                <div className="font-mono text-xs dark:text-neutral-300 text-neutral-800">
-                  Required Fields:{' '}
-                  {(doc.requestBodySchema.required || []).map((req, rIdx) => (
-                    <span key={rIdx} className="mr-2 px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold">
-                      {req}
-                    </span>
-                  ))}
-                </div>
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">Request Body</h3>
+              <div className="rounded-2xl border p-6 dark:bg-[#121212] bg-neutral-50 dark:border-[#222222] border-neutral-200 space-y-6">
+                
+                {doc.requestBodySchema.required && doc.requestBodySchema.required.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="font-semibold text-neutral-500">Required fields:</span>
+                    {doc.requestBodySchema.required.map((req, rIdx) => (
+                      <span key={rIdx} className="px-2 py-1 rounded-md bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                        {req}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-                <div className="divide-y dark:divide-[#1f1f1f] divide-neutral-100 text-xs font-mono">
+                <div className="divide-y dark:divide-[#222222] divide-neutral-200">
                   {Object.entries(doc.requestBodySchema.properties || {}).map(([propName, propDef]) => (
-                    <div key={propName} className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                      <div>
-                        <span className="font-bold dark:text-white text-black">{propName}</span>
-                        <span className="text-neutral-400 ml-2">({propDef.type})</span>
+                    <div key={propName} className="py-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-bold text-sm text-neutral-900 dark:text-white">{propName}</span>
+                        <span className="font-mono text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">{propDef.type}</span>
                         {propDef.default && (
-                          <span className="text-neutral-500 ml-2">default: {String(propDef.default)}</span>
+                          <span className="text-xs text-neutral-500 font-medium bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md">default: {String(propDef.default)}</span>
                         )}
                       </div>
-                      <p className="text-neutral-400 text-[11px] font-sans">{propDef.description}</p>
+                      <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 sm:w-1/2">{propDef.description}</p>
                     </div>
                   ))}
                 </div>
@@ -449,24 +459,29 @@ print(response.json())`;
             </div>
           )}
 
-          {/* Integration Code Snippets */}
-          <div>
-            <div className="flex items-center justify-between pb-2">
-              <h3 className="text-xs uppercase font-mono tracking-wider text-neutral-400 font-semibold">
-                Client Code Examples
-              </h3>
+          {/* Integration Code Snippets (Mac Terminal Style) */}
+          <div className="space-y-3 pt-4">
+            <h3 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">Example Request</h3>
+            
+            <div className="rounded-2xl border dark:border-[#333333] border-neutral-300 overflow-hidden bg-[#fafafa] dark:bg-[#0c0c0c] shadow-sm">
+              {/* Mac Window Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-neutral-100 dark:bg-[#1a1a1a] border-b dark:border-[#333333] border-neutral-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-400 border border-red-500/20"></div>
+                  <div className="w-3 h-3 rounded-full bg-amber-400 border border-amber-500/20"></div>
+                  <div className="w-3 h-3 rounded-full bg-emerald-400 border border-emerald-500/20"></div>
+                </div>
 
-              <div className="flex items-center gap-2">
-                <div className="inline-flex rounded-lg border p-0.5 dark:border-[#333333] border-neutral-300 dark:bg-[#111111] bg-neutral-100 text-[11px] font-mono">
+                <div className="flex items-center gap-2 bg-white dark:bg-[#0c0c0c] p-1 rounded-lg border border-neutral-200 dark:border-[#333333]">
                   {['curl', 'node', 'python'].map((lang) => (
                     <button
                       key={lang}
                       type="button"
                       onClick={() => setSelectedLanguage(lang)}
-                      className={`px-2.5 py-1 rounded capitalize ${
+                      className={`px-3 py-1 rounded-md text-xs font-semibold capitalize transition-all ${
                         selectedLanguage === lang
-                          ? 'bg-blue-600 text-white font-bold'
-                          : 'dark:text-neutral-400 text-neutral-600'
+                          ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-sm'
+                          : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
                       }`}
                     >
                       {lang}
@@ -477,51 +492,16 @@ print(response.json())`;
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="flex items-center gap-1 text-[11px] font-mono px-2.5 py-1 rounded border dark:border-[#333333] border-neutral-300 dark:hover:bg-[#1f1f1f] hover:bg-neutral-100 transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
                 >
-                  {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-neutral-400" />}
+                  {copiedCode ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                   <span>{copiedCode ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
-            </div>
 
-            <pre className="p-4 rounded-2xl font-mono text-xs overflow-x-auto dark:bg-black bg-neutral-900 text-neutral-200 border dark:border-[#222222] border-neutral-800 shadow-inner">
-              <code>{getCodeSnippet()}</code>
-            </pre>
-          </div>
-
-          {/* Status Codes */}
-          <div>
-            <h3 className="text-xs uppercase font-mono tracking-wider text-neutral-400 mb-2 font-semibold">
-              HTTP Status Codes & Resolution
-            </h3>
-            <div className="rounded-xl border overflow-hidden dark:border-[#222222] border-neutral-200 text-xs">
-              <table className="w-full text-left font-mono text-[11px]">
-                <thead className="dark:bg-[#141414] bg-neutral-100 dark:text-neutral-400 text-neutral-600">
-                  <tr>
-                    <th className="p-2.5">Code</th>
-                    <th className="p-2.5">Meaning / Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y dark:divide-[#222222] divide-neutral-200 dark:bg-[#0c0c0c] bg-white">
-                  <tr>
-                    <td className="p-2.5 text-emerald-400 font-semibold">200 OK</td>
-                    <td className="p-2.5 dark:text-neutral-300 text-neutral-700">Request processed successfully.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2.5 text-amber-400 font-semibold">400 Bad Request</td>
-                    <td className="p-2.5 dark:text-neutral-300 text-neutral-700">Invalid JSON schema or missing required parameter.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2.5 text-rose-400 font-semibold">401 Unauthorized</td>
-                    <td className="p-2.5 dark:text-neutral-300 text-neutral-700">Missing or invalid API key in x-api-key header.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2.5 text-purple-400 font-semibold">429 Rate Limit</td>
-                    <td className="p-2.5 dark:text-neutral-300 text-neutral-700">Plan rate limit or request quota exceeded.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <pre className="p-6 font-mono text-sm overflow-x-auto text-neutral-800 dark:text-neutral-300">
+                <code>{getCodeSnippet()}</code>
+              </pre>
             </div>
           </div>
         </div>
@@ -529,19 +509,17 @@ print(response.json())`;
 
       {/* Tab 3: Pricing Plans */}
       {activeTab === 'pricing' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-extrabold tracking-tight dark:text-white text-black">
-                Available Pricing Plans
-              </h2>
-              <p className="text-xs dark:text-neutral-400 text-neutral-500">
-                Authoritative plans loaded from PostgreSQL. Entitlements activate instantly.
-              </p>
-            </div>
+        <div className="space-y-8 animate-fade-in">
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-extrabold tracking-tighter dark:text-white text-neutral-900">
+              Simple, transparent pricing.
+            </h2>
+            <p className="text-base font-medium dark:text-neutral-400 text-neutral-500">
+              Start for free, upgrade when you need more power. No hidden fees.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
             {plans.map((plan) => {
               const isCurrentPlan = userEntitlement?.plan?.id === plan.id;
               const isFree = plan.price_amount === 0;
@@ -552,89 +530,83 @@ print(response.json())`;
               return (
                 <div
                   key={plan.id}
-                  className={`rounded-2xl border p-6 flex flex-col justify-between transition-all duration-200 relative ${
+                  className={`rounded-[2rem] p-8 flex flex-col justify-between transition-all relative ${
                     isCurrentPlan
-                      ? 'dark:bg-[#0e1626] bg-blue-50/60 border-blue-500 ring-2 ring-blue-500/30 shadow-lg'
+                      ? 'border-2 border-neutral-900 dark:border-white bg-white dark:bg-[#0c0c0c] shadow-xl scale-[1.02]'
                       : plan.price_amount > 0 && plan.price_amount < 100000
-                      ? 'dark:bg-gradient-to-b dark:from-[#13151b] dark:to-[#0c0c0c] bg-white dark:border-blue-500/40 border-blue-300 shadow-md ring-1 ring-blue-500/20'
-                      : 'dark:bg-[#0c0c0c] bg-neutral-50 dark:border-[#222222] border-neutral-200'
+                      ? 'border border-blue-200 dark:border-blue-900/50 bg-blue-50/30 dark:bg-blue-900/10 shadow-md'
+                      : 'border border-neutral-200 dark:border-[#222222] bg-neutral-50 dark:bg-[#121212]'
                   }`}
                 >
                   {isCurrentPlan && (
-                    <span className="absolute -top-3 right-4 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500 text-white shadow-sm">
-                      ACTIVE PLAN
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold bg-neutral-900 text-white dark:bg-white dark:text-black shadow-sm">
+                      Current Plan
                     </span>
                   )}
 
-                  {!isCurrentPlan && plan.price_amount > 0 && plan.price_amount < 100000 && (
-                    <span className="absolute -top-3 right-4 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-600 text-white shadow-sm">
-                      RECOMMENDED
-                    </span>
-                  )}
-
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <h3 className="text-base font-bold dark:text-white text-black">
+                      <h3 className="text-xl font-bold tracking-tight dark:text-white text-black">
                         {plan.name}
                       </h3>
-                      <p className="text-xs dark:text-neutral-400 text-neutral-500 mt-1 leading-snug">
+                      <p className="text-sm font-medium dark:text-neutral-400 text-neutral-500 mt-2">
                         {plan.description}
                       </p>
                     </div>
 
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold tracking-tight dark:text-white text-black font-sans">
+                      <span className="text-4xl font-extrabold tracking-tighter dark:text-white text-black">
                         {priceFormatted}
                       </span>
                       {!isFree && (
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-sm font-medium text-neutral-500">
                           /{plan.billing_interval || 'month'}
                         </span>
                       )}
                     </div>
 
-                    <div className="py-3 border-y dark:border-[#222222] border-neutral-200 text-xs space-y-1.5 font-mono">
-                      <div className="flex justify-between">
-                        <span className="text-neutral-400">Monthly Quota:</span>
-                        <span className="font-semibold dark:text-white text-black">
-                          {plan.included_requests?.toLocaleString()} req
+                    <div className="py-5 border-y dark:border-[#2a2a2a] border-neutral-200 space-y-3 text-sm font-medium">
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-500">Monthly Quota</span>
+                        <span className="font-bold dark:text-white text-black bg-white dark:bg-[#1a1a1a] px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-[#333333]">
+                          {plan.included_requests?.toLocaleString()} reqs
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-neutral-400">Rate Limit:</span>
-                        <span className="font-semibold dark:text-white text-black">
-                          {plan.rate_limit_per_minute} req / min
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-500">Rate Limit</span>
+                        <span className="font-bold dark:text-white text-black bg-white dark:bg-[#1a1a1a] px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-[#333333]">
+                          {plan.rate_limit_per_minute} / min
                         </span>
                       </div>
                     </div>
 
-                    <ul className="space-y-2 text-xs">
+                    <ul className="space-y-3.5 text-sm font-medium">
                       {(plan.features || []).map((feat, fIdx) => (
-                        <li key={fIdx} className="flex items-center gap-2 dark:text-neutral-300 text-neutral-700">
-                          <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                          <span>{feat}</span>
+                        <li key={fIdx} className="flex items-start gap-3 dark:text-neutral-300 text-neutral-700">
+                          <Check className="w-5 h-5 text-blue-500 shrink-0" />
+                          <span className="leading-tight">{feat}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="pt-6">
+                  <div className="pt-8 mt-auto">
                     {isCurrentPlan ? (
-                      <div className="w-full py-2.5 rounded-xl text-xs font-bold text-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <div className="w-full py-3.5 rounded-full text-sm font-bold text-center bg-neutral-100 dark:bg-white/10 text-neutral-900 dark:text-white border border-transparent">
                         Currently Subscribed
                       </div>
                     ) : (
                       <button
                         type="button"
                         onClick={() => handleLaunchCheckout(plan)}
-                        className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm ${
+                        className={`w-full py-3.5 rounded-full text-sm font-bold transition-transform hover:scale-105 flex items-center justify-center gap-2 ${
                           isFree
-                            ? 'border dark:border-[#333333] border-neutral-300 dark:hover:bg-[#1a1a1a] hover:bg-neutral-100 dark:text-white text-black'
-                            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/25 shadow-md'
+                            ? 'bg-neutral-200 dark:bg-[#1a1a1a] hover:bg-neutral-300 dark:hover:bg-[#222222] text-neutral-900 dark:text-white'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20'
                         }`}
                       >
-                        <span>{isFree ? 'Activate Free Tier' : 'Purchase Plan'}</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        <span>{isFree ? 'Start for Free' : 'Subscribe Now'}</span>
+                        <ChevronRight className="w-4 h-4" />
                       </button>
                     )}
                   </div>
@@ -647,51 +619,56 @@ print(response.json())`;
 
       {/* Tab 4: Features & Architecture */}
       {activeTab === 'features' && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-base font-bold dark:text-white text-black mb-3">
-              Verified Technical Capabilities
+        <div className="space-y-10 animate-fade-in max-w-4xl">
+          
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold tracking-tight dark:text-white text-neutral-900">
+              Technical Capabilities
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {(product.features || []).map((feat, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-3.5 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-50 dark:border-[#222222] border-neutral-200 text-xs dark:text-neutral-300 text-neutral-800"
+                  className="flex items-start gap-4 p-5 rounded-2xl border dark:bg-[#121212] bg-neutral-50 dark:border-[#222222] border-neutral-200"
                 >
-                  <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                  <span>{feat}</span>
+                  <Zap className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <span className="text-sm font-medium dark:text-neutral-300 text-neutral-700 leading-relaxed">{feat}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {product.use_cases && product.use_cases.length > 0 && (
-            <div>
-              <h2 className="text-base font-bold dark:text-white text-black mb-3">
-                Target Engineering Use Cases
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold tracking-tight dark:text-white text-neutral-900">
+                Use Cases
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {product.use_cases.map((useCase, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-3 p-3.5 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-50 dark:border-[#222222] border-neutral-200 text-xs dark:text-neutral-300 text-neutral-800"
+                    className="flex items-start gap-4 p-5 rounded-2xl border dark:bg-[#121212] bg-neutral-50 dark:border-[#222222] border-neutral-200"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                    <span>{useCase}</span>
+                    <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                    <span className="text-sm font-medium dark:text-neutral-300 text-neutral-700 leading-relaxed">{useCase}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="p-5 rounded-2xl border dark:bg-[#10141f] bg-blue-50/50 dark:border-blue-900/40 border-blue-200 space-y-2">
-            <div className="text-xs font-bold dark:text-white text-black flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-blue-500" />
-              <span>Zero Retention Security Architecture</span>
+          <div className="p-8 rounded-[2rem] border dark:bg-[#10141f] bg-blue-50 dark:border-blue-900/30 border-blue-100 flex flex-col sm:flex-row gap-6 items-start">
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <p className="text-xs dark:text-neutral-400 text-neutral-600 leading-relaxed">
-              Kruu microservices process payloads in memory with zero persistent storage of confidential payload data. All connections require TLS 1.3 encryption, and private subnet traversals are filtered by SSRF security defenses.
-            </p>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold tracking-tight dark:text-white text-neutral-900">
+                Zero Retention Security
+              </h3>
+              <p className="text-sm font-medium dark:text-neutral-400 text-neutral-600 leading-relaxed max-w-2xl">
+                Kruu microservices process payloads in memory with zero persistent storage of confidential data. All connections mandate TLS 1.3 encryption, ensuring enterprise-grade data security at the edge.
+              </p>
+            </div>
           </div>
         </div>
       )}

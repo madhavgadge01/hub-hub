@@ -1,65 +1,129 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import TopNavigation from './components/navigation/TopNavigation';
 import ToolsDirectoryPage from './pages/ToolsDirectoryPage';
 import MarketplacePage from './pages/MarketplacePage';
+import ApiDetailPage from './pages/ApiDetailPage';
 import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import NotFoundPage from './pages/NotFoundPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
 import ToastContainer from './components/common/Toast';
 
 function UltraMinimalistApp() {
-  const { user, isAuthModalOpen, setIsAuthModalOpen } = useApp();
-  const [activeTab, setActiveTab] = useState('devtools'); // 'devtools' | 'marketplace' | 'profile'
-  const [selectedMarketplaceSlug, setSelectedMarketplaceSlug] = useState(null);
+  const { isAuthModalOpen, setIsAuthModalOpen } = useApp();
+  const location = useLocation();
 
-  const handleProfileClick = () => {
-    if (user) {
-      setActiveTab('profile');
-    } else {
-      setIsAuthModalOpen(true);
-    }
-  };
-
-  const handleNavigateToMarketplace = (slug = null) => {
-    setSelectedMarketplaceSlug(slug);
-    setActiveTab('marketplace');
-  };
+  // Determine active section for TopNavigation visual highlighting
+  let activeTab = 'devtools';
+  if (location.pathname.startsWith('/api-market')) {
+    activeTab = 'marketplace';
+  } else if (location.pathname.startsWith('/profile')) {
+    activeTab = 'profile';
+  } else if (location.pathname === '/' || location.pathname.startsWith('/tools')) {
+    activeTab = 'devtools';
+  } else {
+    activeTab = '';
+  }
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-200 dark:bg-black bg-white dark:text-[#EDEDED] text-black">
       {/* Top Header with Centered Segmented Control, Theme Toggle & Avatar */}
-      <TopNavigation
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          if (tab === 'marketplace') {
-            setSelectedMarketplaceSlug(null);
-          }
-          setActiveTab(tab);
-        }}
-        onOpenProfileModal={handleProfileClick}
-      />
+      <TopNavigation activeTab={activeTab} />
 
-      {/* Main View Area (Tool Discovery, API Market, Developer Profile) */}
+      {/* Main View Area with Dedicated URL-Based Routing */}
       <main className="flex-1 w-full">
-        {activeTab === 'devtools' && <ToolsDirectoryPage />}
+        <Routes>
+          {/* Default Landing & Tool Discovery Routes */}
+          <Route path="/" element={<ToolsDirectoryPage />} />
+          <Route path="/tools" element={<ToolsDirectoryPage />} />
+          <Route path="/tools/category/:categorySlug" element={<ToolsDirectoryPage />} />
+          <Route path="/tools/:slug" element={<ToolsDirectoryPage />} />
 
-        {activeTab === 'marketplace' && (
-          <div className="px-4 sm:px-6 lg:px-8 pt-6">
-            <MarketplacePage
-              initialSlug={selectedMarketplaceSlug}
-              onNavigateToProfile={() => setActiveTab('profile')}
-            />
-          </div>
-        )}
+          {/* API Marketplace Routes */}
+          <Route
+            path="/api-market"
+            element={
+              <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                <MarketplacePage />
+              </div>
+            }
+          />
+          <Route
+            path="/api-market/:slug"
+            element={
+              <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                <ApiDetailPage />
+              </div>
+            }
+          />
 
-        {activeTab === 'profile' && (
-          <div className="px-4 sm:px-6 lg:px-8 pt-6">
-            <ProfilePage
-              onNavigateToMarketplace={handleNavigateToMarketplace}
-            />
-          </div>
-        )}
+          {/* User Profile & Dashboard (Protected Routes) */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/api-keys"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/purchases"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/analytics"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/billing"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Authentication Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+
+          {/* Legacy Playground Alias Redirect */}
+          <Route path="/playground" element={<Navigate to="/api-market" replace />} />
+
+          {/* 404 Not Found Route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </main>
 
       {/* Ultra-Minimalist Developer Footer */}
@@ -85,8 +149,7 @@ function UltraMinimalistApp() {
         </div>
       </footer>
 
-
-      {/* Authentication Modal */}
+      {/* Authentication Modal (For in-place triggers) */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -100,10 +163,12 @@ function UltraMinimalistApp() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppProvider>
-        <UltraMinimalistApp />
-      </AppProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AppProvider>
+          <UltraMinimalistApp />
+        </AppProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }

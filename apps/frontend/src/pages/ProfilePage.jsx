@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Key,
   Package,
@@ -25,7 +26,26 @@ import { useApp } from '../context/AppContext';
 
 export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
   const { user, apiKeys, purchases, setIsAuthModalOpen, addToast } = useApp();
-  const [activeTab, setActiveTab] = useState('keys'); // 'keys' | 'purchased' | 'analytics' | 'billing'
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine active subsection tab from current URL path
+  const getTabFromPath = () => {
+    if (location.pathname.includes('/purchases')) return 'purchased';
+    if (location.pathname.includes('/analytics')) return 'analytics';
+    if (location.pathname.includes('/billing')) return 'billing';
+    return 'keys';
+  };
+
+  const activeTab = getTabFromPath();
+
+  const handleTabChange = (tab) => {
+    if (tab === 'keys') navigate('/profile/api-keys');
+    else if (tab === 'purchased') navigate('/profile/purchases');
+    else if (tab === 'analytics') navigate('/profile/analytics');
+    else if (tab === 'billing') navigate('/profile/billing');
+  };
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
@@ -46,7 +66,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
         </div>
         <button
           type="button"
-          onClick={() => setIsAuthModalOpen(true)}
+          onClick={() => navigate('/login', { state: { from: location.pathname } })}
           className="px-6 py-2.5 rounded-xl text-xs font-bold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-md"
         >
           Sign In / Create Account
@@ -69,8 +89,20 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
   };
 
   const handleNavigateToPlayground = (slug) => {
-    if (onNavigateToMarketplace) {
+    if (slug) {
+      navigate(`/api-market/${slug}`);
+    } else if (onNavigateToMarketplace) {
       onNavigateToMarketplace(slug);
+    } else {
+      navigate('/api-market');
+    }
+  };
+
+  const handleExploreMarketplace = () => {
+    if (onNavigateToMarketplace) {
+      onNavigateToMarketplace();
+    } else {
+      navigate('/api-market');
     }
   };
 
@@ -91,7 +123,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
         <div className="inline-flex items-center p-1 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-100 dark:border-[#222222] border-neutral-300 self-start sm:self-auto shadow-inner flex-wrap gap-1">
           <button
             type="button"
-            onClick={() => setActiveTab('keys')}
+            onClick={() => handleTabChange('keys')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'keys'
                 ? 'dark:bg-black bg-white dark:text-white text-black dark:border-[#333333] border-neutral-300 border shadow-sm'
@@ -104,7 +136,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('purchased')}
+            onClick={() => handleTabChange('purchased')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'purchased'
                 ? 'dark:bg-black bg-white dark:text-white text-black dark:border-[#333333] border-neutral-300 border shadow-sm'
@@ -117,7 +149,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => handleTabChange('analytics')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'analytics'
                 ? 'dark:bg-black bg-white dark:text-white text-black dark:border-[#333333] border-neutral-300 border shadow-sm'
@@ -130,7 +162,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('billing')}
+            onClick={() => handleTabChange('billing')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'billing'
                 ? 'dark:bg-black bg-white dark:text-white text-black dark:border-[#333333] border-neutral-300 border shadow-sm'
@@ -186,7 +218,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
       {activeTab === 'purchased' && (
         <div className="space-y-6">
           <PurchasedApisCard
-            onNavigateToMarketplace={onNavigateToMarketplace}
+            onNavigateToMarketplace={handleExploreMarketplace}
             onNavigateToPlayground={handleNavigateToPlayground}
           />
         </div>

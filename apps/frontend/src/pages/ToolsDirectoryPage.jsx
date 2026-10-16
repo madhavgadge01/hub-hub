@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Menu, Compass } from 'lucide-react';
 import api from '../api/client';
 import { useApp } from '../context/AppContext';
@@ -12,12 +13,8 @@ import ToolAdminModal from '../components/tools/ToolAdminModal';
 
 export const ToolsDirectoryPage = () => {
   const { addToast } = useApp();
-
-  // Navigation & View State
-  // view: 'home' | 'category' | 'tool'
-  const [currentView, setCurrentView] = useState('home');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedToolSlug, setSelectedToolSlug] = useState(null);
+  const navigate = useNavigate();
+  const { categorySlug, slug } = useParams();
 
   // Categories fetched dynamically from PostgreSQL (A to Z)
   const [categories, setCategories] = useState([]);
@@ -32,6 +29,16 @@ export const ToolsDirectoryPage = () => {
 
   // Admin Modal State
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  // Derive current view & parameters directly from URL route parameters
+  const currentView = slug ? 'tool' : categorySlug ? 'category' : 'home';
+  const selectedToolSlug = slug || null;
+  const selectedCategory = categorySlug
+    ? (categories.find((c) => c.slug === categorySlug) || { slug: categorySlug, name: categorySlug })
+    : null;
+
+  // Active category slug for sidebar visual highlighting
+  const activeSidebarCategorySlug = slug ? '__tool__' : (categorySlug || null);
 
   // Fetch active categories from backend
   const loadCategories = async () => {
@@ -83,29 +90,24 @@ export const ToolsDirectoryPage = () => {
     addToast('Cleared comparison selection.', 'info');
   };
 
-  // Navigation Handlers
+  // URL-based Navigation Handlers
   const handleSelectHome = () => {
-    setSelectedCategory(null);
-    setSelectedToolSlug(null);
-    setCurrentView('home');
+    navigate('/tools');
   };
 
   const handleSelectCategory = (cat) => {
-    setSelectedCategory(cat);
-    setSelectedToolSlug(null);
-    setCurrentView('category');
+    navigate(`/tools/category/${cat.slug}`);
   };
 
   const handleSelectTool = (tool) => {
-    setSelectedToolSlug(tool.slug || tool.id);
-    setCurrentView('tool');
+    navigate(`/tools/${tool.slug || tool.id}`);
   };
 
   const handleBackToOverview = () => {
-    if (selectedCategory) {
-      setCurrentView('category');
+    if (categorySlug) {
+      navigate(`/tools/category/${categorySlug}`);
     } else {
-      setCurrentView('home');
+      navigate('/tools');
     }
   };
 
@@ -133,7 +135,7 @@ export const ToolsDirectoryPage = () => {
       <ToolsSidebar
         categories={categories}
         categoriesLoading={categoriesLoading}
-        selectedCategorySlug={selectedCategory?.slug || null}
+        selectedCategorySlug={activeSidebarCategorySlug}
         onSelectHome={handleSelectHome}
         onSelectCategory={handleSelectCategory}
         onSelectTool={handleSelectTool}

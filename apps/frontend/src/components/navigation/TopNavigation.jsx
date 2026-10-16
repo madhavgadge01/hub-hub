@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Compass,
   Key,
@@ -12,11 +13,44 @@ import { useApp } from '../../context/AppContext';
 import ThemeToggle from '../common/ThemeToggle';
 
 export const TopNavigation = ({
-  activeTab, // 'devtools' | 'my-apis'
+  activeTab, // 'devtools' | 'marketplace' | 'profile'
   setActiveTab,
   onOpenProfileModal
 }) => {
   const { user, credits } = useApp();
+  const navigate = useNavigate();
+
+  const handleBrandClick = () => {
+    if (setActiveTab) setActiveTab('devtools');
+    navigate('/');
+  };
+
+  const handleToolsClick = () => {
+    if (setActiveTab) setActiveTab('devtools');
+    navigate('/tools');
+  };
+
+  const handleMarketplaceClick = () => {
+    if (setActiveTab) setActiveTab('marketplace');
+    navigate('/api-market');
+  };
+
+  const handleProfileClick = () => {
+    if (user) {
+      if (setActiveTab) setActiveTab('profile');
+      navigate('/profile');
+    } else {
+      if (onOpenProfileModal) {
+        onOpenProfileModal();
+      } else {
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleSignInClick = () => {
+    navigate('/login');
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors duration-200 dark:bg-black/80 bg-white/80 dark:border-[#1f1f1f] border-[#eaeaea]">
@@ -25,7 +59,7 @@ export const TopNavigation = ({
         {/* Left: Minimalist Brand Wordmark */}
         <div className="flex items-center gap-3 shrink-0">
           <button
-            onClick={() => setActiveTab('devtools')}
+            onClick={handleBrandClick}
             className="flex items-center gap-2.5 group text-left focus:outline-none"
           >
             <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm transition-transform group-hover:scale-105 shrink-0">
@@ -55,7 +89,7 @@ export const TopNavigation = ({
             {/* Tool Discovery Tab Button */}
             <button
               type="button"
-              onClick={() => setActiveTab('devtools')}
+              onClick={handleToolsClick}
               className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
                 activeTab === 'devtools'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
@@ -69,7 +103,7 @@ export const TopNavigation = ({
             {/* API Market Tab Button */}
             <button
               type="button"
-              onClick={() => setActiveTab('marketplace')}
+              onClick={handleMarketplaceClick}
               className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
                 activeTab === 'marketplace'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
@@ -91,7 +125,7 @@ export const TopNavigation = ({
           {user ? (
             <button
               type="button"
-              onClick={onOpenProfileModal}
+              onClick={handleProfileClick}
               className={`relative flex items-center gap-2 pl-1 rounded-full group focus:outline-none transition-all ${
                 activeTab === 'profile' ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-black' : ''
               }`}
@@ -109,7 +143,7 @@ export const TopNavigation = ({
           ) : (
             <button
               type="button"
-              onClick={() => onOpenProfileModal ? onOpenProfileModal(true) : null}
+              onClick={handleSignInClick}
               className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-neutral-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-sm"
             >
               Sign In
