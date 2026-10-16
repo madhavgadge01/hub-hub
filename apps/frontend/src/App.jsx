@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
+import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
 import ToastContainer from './components/common/Toast';
@@ -19,27 +20,34 @@ function UltraMinimalistApp() {
   const location = useLocation();
 
   // Determine active section for TopNavigation visual highlighting
-  let activeTab = 'devtools';
+  let activeTab = '';
   if (location.pathname.startsWith('/api-market')) {
     activeTab = 'marketplace';
   } else if (location.pathname.startsWith('/profile')) {
     activeTab = 'profile';
-  } else if (location.pathname === '/' || location.pathname.startsWith('/tools')) {
+  } else if (location.pathname.startsWith('/careers')) {
+    activeTab = 'careers';
+  } else if (location.pathname.startsWith('/tools')) {
     activeTab = 'devtools';
-  } else {
-    activeTab = '';
+  } else if (location.pathname === '/') {
+    activeTab = 'home';
   }
+
+  const isLandingRoute = location.pathname === '/' || location.pathname === '/careers';
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-200 dark:bg-black bg-white dark:text-[#EDEDED] text-black">
-      {/* Top Header with Centered Segmented Control, Theme Toggle & Avatar */}
-      <TopNavigation activeTab={activeTab} />
+      {/* Top Navigation for Application Pages (Tool Discovery, API Market, Profile, Auth) */}
+      {!isLandingRoute && <TopNavigation activeTab={activeTab} />}
 
       {/* Main View Area with Dedicated URL-Based Routing */}
       <main className="flex-1 w-full">
         <Routes>
-          {/* Default Landing & Tool Discovery Routes */}
-          <Route path="/" element={<ToolsDirectoryPage />} />
+          {/* Main Landing & Careers Section Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/careers" element={<LandingPage initialSection="careers" />} />
+
+          {/* Tool Discovery Routes */}
           <Route path="/tools" element={<ToolsDirectoryPage />} />
           <Route path="/tools/category/:categorySlug" element={<ToolsDirectoryPage />} />
           <Route path="/tools/:slug" element={<ToolsDirectoryPage />} />
@@ -126,28 +134,25 @@ function UltraMinimalistApp() {
         </Routes>
       </main>
 
-      {/* Ultra-Minimalist Developer Footer */}
-      <footer className="border-t py-6 px-4 sm:px-6 lg:px-8 text-xs font-mono dark:border-[#1f1f1f] border-[#eaeaea] dark:bg-black/60 bg-white/60 backdrop-blur-sm transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 dark:text-neutral-500 text-neutral-600">
-            <div className="w-5 h-5 rounded bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm shrink-0">
-              <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
+      {/* Clean Application Footer for App Views */}
+      {!isLandingRoute && (
+        <footer className="border-t py-6 px-4 sm:px-6 lg:px-8 text-xs font-mono dark:border-[#1f1f1f] border-[#eaeaea] dark:bg-black/60 bg-white/60 backdrop-blur-sm transition-colors">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 dark:text-neutral-500 text-neutral-600">
+              <div className="w-5 h-5 rounded bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm shrink-0">
+                <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-bold dark:text-neutral-200 text-neutral-900 font-sans">Kruu</span>
+              <span>•</span>
+              <span>Developer software directory & API marketplace</span>
             </div>
-            <span className="font-bold dark:text-neutral-200 text-neutral-900 font-sans">Kruu</span>
-            <span>•</span>
-            <span>Developer utility platform & microservice directory</span>
-          </div>
 
-          <div className="flex items-center gap-4 dark:text-neutral-500 text-neutral-500 text-[11px]">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Edge Gateway 99.99% SLA</span>
-            </span>
-            <span>•</span>
-            <span>TLS 1.3 Certified</span>
+            <div className="flex items-center gap-4 dark:text-neutral-500 text-neutral-500 text-[11px]">
+              <span>© {new Date().getFullYear()} Kruu. All rights reserved.</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Authentication Modal (For in-place triggers) */}
       <AuthModal

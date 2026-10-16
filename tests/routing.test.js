@@ -17,6 +17,7 @@ test('Frontend Routing & URL Architecture Tests', async (t) => {
     assert.ok(appContent.includes('path="/tools/category/:categorySlug"'), '/tools/category/:categorySlug dynamic route should be configured');
     assert.ok(appContent.includes('path="/api-market"'), '/api-market route should be configured');
     assert.ok(appContent.includes('path="/api-market/:slug"'), '/api-market/:slug dynamic route should be configured');
+    assert.ok(appContent.includes('path="/careers"'), '/careers route should be configured');
     assert.ok(appContent.includes('path="/profile"'), '/profile route should be configured');
     assert.ok(appContent.includes('path="/profile/api-keys"'), '/profile/api-keys subsection route should be configured');
     assert.ok(appContent.includes('path="/profile/purchases"'), '/profile/purchases subsection route should be configured');
@@ -40,6 +41,7 @@ test('Frontend Routing & URL Architecture Tests', async (t) => {
   await t.test('Direct URL HTTP access serves index.html for frontend routes', async () => {
     const routesToTest = [
       '/',
+      '/careers',
       '/tools',
       '/tools/stripe',
       '/tools/category/developer-utilities',

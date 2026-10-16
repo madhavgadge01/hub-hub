@@ -2,18 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Compass,
-  Key,
-  Code2,
-  Coins,
   Sparkles,
-  ExternalLink,
-  ChevronDown
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import ThemeToggle from '../common/ThemeToggle';
 
 export const TopNavigation = ({
-  activeTab, // 'devtools' | 'marketplace' | 'profile'
+  activeTab, // 'home' | 'devtools' | 'marketplace' | 'careers' | 'profile'
   setActiveTab,
   onOpenProfileModal
 }) => {
@@ -21,8 +16,13 @@ export const TopNavigation = ({
   const navigate = useNavigate();
 
   const handleBrandClick = () => {
-    if (setActiveTab) setActiveTab('devtools');
-    navigate('/');
+    if (user) {
+      if (setActiveTab) setActiveTab('devtools');
+      navigate('/tools');
+    } else {
+      if (setActiveTab) setActiveTab('home');
+      navigate('/');
+    }
   };
 
   const handleToolsClick = () => {
@@ -80,17 +80,17 @@ export const TopNavigation = ({
           </button>
         </div>
 
-        {/* Top-Center: Prominent, Slightly Oversized Sleek Segmented Control */}
+        {/* Top-Center: App Product Segmented Control (Tool Discovery & API Market) */}
         <div className="flex items-center justify-center">
           <nav
-            aria-label="Main Navigation View Switcher"
+            aria-label="Application Navigation"
             className="relative inline-flex items-center p-1 rounded-xl border dark:bg-[#0c0c0c] bg-neutral-100 dark:border-[#262626] border-[#e5e5e5] shadow-inner"
           >
             {/* Tool Discovery Tab Button */}
             <button
               type="button"
               onClick={handleToolsClick}
-              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
+              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
                 activeTab === 'devtools'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
                   : 'dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
@@ -104,7 +104,7 @@ export const TopNavigation = ({
             <button
               type="button"
               onClick={handleMarketplaceClick}
-              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
+              className={`relative z-10 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 select-none ${
                 activeTab === 'marketplace'
                   ? 'dark:bg-black bg-white dark:text-white text-black shadow-sm dark:border-[#333333] border-[#e5e5e5] border'
                   : 'dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
