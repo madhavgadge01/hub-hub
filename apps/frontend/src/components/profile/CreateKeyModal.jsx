@@ -57,7 +57,7 @@ export const CreateKeyModal = ({ isOpen, onClose, preselectedEntitlementId = nul
       subtitle={
         generatedKey
           ? 'Please copy this secret key now. For your security, the secret cannot be viewed again.'
-          : 'Provision a cryptographically secure key to access Hub&Hub REST endpoints.'
+          : 'Provision a cryptographically secure key to access Kruu REST endpoints.'
       }
       maxWidth="max-w-lg"
     >
@@ -68,7 +68,7 @@ export const CreateKeyModal = ({ isOpen, onClose, preselectedEntitlementId = nul
             <div>
               <p className="font-semibold text-amber-200">Store this raw key securely</p>
               <p className="mt-0.5 text-neutral-300">
-                Hub&Hub only stores a cryptographically secure SHA-256 hash. Once you close this window, the raw secret cannot be recovered.
+                Kruu only stores a cryptographically secure SHA-256 hash. Once you close this window, the raw secret cannot be recovered.
               </p>
             </div>
           </div>

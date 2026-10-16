@@ -26,14 +26,18 @@ export const TopNavigation = ({
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => setActiveTab('devtools')}
-            className="flex items-center gap-2 group text-left focus:outline-none"
+            className="flex items-center gap-2.5 group text-left focus:outline-none"
           >
-            <div className="w-7 h-7 rounded-lg dark:bg-[#111111] bg-neutral-900 border dark:border-[#262626] border-neutral-700 flex items-center justify-center text-white transition-transform group-hover:scale-105 shadow-sm">
-              <Code2 className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm transition-transform group-hover:scale-105 shrink-0">
+              <img
+                src="/kruu_logo.png"
+                alt="Kruu"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight dark:text-white text-black font-sans">
-                Hubs & Hubs
+              <span className="font-extrabold text-base tracking-tight dark:text-white text-black font-sans">
+                Kruu
               </span>
               <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded dark:bg-neutral-900 bg-neutral-100 dark:text-neutral-400 text-neutral-600 border dark:border-[#262626] border-neutral-200">
                 v2.0

@@ -15,7 +15,7 @@ async function startServer() {
 
     // 3. Start Express server
     const server = app.listen(env.port, () => {
-      console.log(`🚀 Hub&Hub backend running on http://localhost:${env.port} [${env.nodeEnv}]`);
+      console.log(`🚀 Kruu backend running on http://localhost:${env.port} [${env.nodeEnv}]`);
     });
 
     // 4. Graceful shutdown handler

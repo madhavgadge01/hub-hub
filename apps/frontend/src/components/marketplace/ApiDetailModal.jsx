@@ -73,17 +73,17 @@ export const ApiDetailModal = ({ api: initialApi, isOpen, onClose, onTryPlaygrou
 
   const getCodeSnippet = () => {
     const endpoint = currentApi.endpoint_path || currentApi.endpoint?.split(' ')[1] || '/qr';
-    const samplePayload = doc.exampleRequest || currentApi.samplePayload || { text: 'https://hubhub.dev' };
+    const samplePayload = doc.exampleRequest || currentApi.samplePayload || { text: 'https://kruu.dev' };
     const payloadStr = JSON.stringify(samplePayload, null, 2);
 
     switch (selectedLanguage) {
       case 'node':
         return `// Install node-fetch or use native Node 18+ fetch
-const response = await fetch("https://api.hubhub.dev/v1${endpoint}", {
+const response = await fetch("https://api.kruu.dev/v1${endpoint}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": process.env.HUBS_API_KEY // Insert your issued API key
+    "x-api-key": process.env.KRUU_API_KEY // Insert your issued API key
   },
   body: JSON.stringify(${payloadStr})
 });
@@ -95,10 +95,10 @@ console.log(data);`;
         return `import requests
 import os
 
-url = "https://api.hubhub.dev/v1${endpoint}"
+url = "https://api.kruu.dev/v1${endpoint}"
 headers = {
     "Content-Type": "application/json",
-    "x-api-key": os.getenv("HUBS_API_KEY")
+    "x-api-key": os.getenv("KRUU_API_KEY")
 }
 payload = ${payloadStr}
 
@@ -107,9 +107,9 @@ print(response.json())`;
 
       case 'curl':
       default:
-        return `curl -X POST "https://api.hubhub.dev/v1${endpoint}" \\
+        return `curl -X POST "https://api.kruu.dev/v1${endpoint}" \\
   -H "Content-Type: application/json" \\
-  -H "x-api-key: $HUBS_API_KEY" \\
+  -H "x-api-key: $KRUU_API_KEY" \\
   -d '${JSON.stringify(samplePayload)}'`;
     }
   };
@@ -149,7 +149,7 @@ print(response.json())`;
                 <div className="flex items-center gap-2 text-xs dark:text-neutral-400 text-neutral-500 mt-0.5">
                   <span>{currentApi.category_name || currentApi.category}</span>
                   <span>•</span>
-                  <span>{currentApi.provider_name || 'Hub&Hub Edge'}</span>
+                  <span>{currentApi.provider_name || 'Kruu Edge'}</span>
                   <span>•</span>
                   <span className="text-emerald-500 font-medium">99.99% Uptime</span>
                 </div>

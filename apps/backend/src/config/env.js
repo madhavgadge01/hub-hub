@@ -47,8 +47,8 @@ export const env = {
 
   // Brevo Transactional Email Integration
   brevoApiKey: process.env.BREVO_API_KEY || null,
-  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "support@hubhub.dev",
-  brevoSenderName: process.env.BREVO_SENDER_NAME || "Hub&Hub Platform",
+  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "support@kruu.dev",
+  brevoSenderName: process.env.BREVO_SENDER_NAME || "Kruu Platform",
 
   // Application URLs
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",

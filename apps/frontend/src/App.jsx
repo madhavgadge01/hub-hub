@@ -65,8 +65,11 @@ function UltraMinimalistApp() {
       {/* Ultra-Minimalist Developer Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 lg:px-8 text-xs font-mono dark:border-[#1f1f1f] border-[#eaeaea] dark:bg-black/60 bg-white/60 backdrop-blur-sm transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 dark:text-neutral-500 text-neutral-600">
-            <span className="font-semibold dark:text-neutral-200 text-neutral-900">Hubs & Hubs</span>
+          <div className="flex items-center gap-2.5 dark:text-neutral-500 text-neutral-600">
+            <div className="w-5 h-5 rounded bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm shrink-0">
+              <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-bold dark:text-neutral-200 text-neutral-900 font-sans">Kruu</span>
             <span>•</span>
             <span>Developer utility platform & microservice directory</span>
           </div>

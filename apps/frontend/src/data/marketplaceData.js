@@ -192,7 +192,7 @@ export const APIS_DATA = [
       'Lossless vector rendering for high-DPI printing'
     ],
     samplePayload: {
-      text: "https://hubshubs.dev/marketplace",
+      text: "https://kruu.dev/marketplace",
       size: 320,
       margin: 2,
       errorCorrectionLevel: "H"

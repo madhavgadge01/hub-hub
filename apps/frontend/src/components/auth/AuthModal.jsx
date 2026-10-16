@@ -41,15 +41,20 @@ export const AuthModal = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isSignUp ? "Create Developer Account" : "Sign In to Hub&Hub"}
+      title={isSignUp ? "Create Developer Account" : "Sign In to Kruu"}
       subtitle={
         isSignUp
-          ? "Join the platform to generate production API keys and track microservice usage."
+          ? "Join Kruu to generate production API keys and track microservice usage."
           : "Access your dashboard, provision API keys, and view rate limit quotas."
       }
       maxWidth="max-w-md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col items-center justify-center pb-1">
+          <div className="w-12 h-12 rounded-xl bg-white border border-neutral-200 dark:border-neutral-800 p-1 flex items-center justify-center shadow-md">
+            <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
+          </div>
+        </div>
         {error && (
           <div className="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 flex items-start gap-2.5 text-xs text-rose-400">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />

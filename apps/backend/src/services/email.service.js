@@ -20,7 +20,7 @@ export function buildPurchaseConfirmationHtml({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hub&Hub Purchase Confirmation</title>
+  <title>Kruu Purchase Confirmation</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0c0c0c; color: #ededed; margin: 0; padding: 20px; }
     .container { max-width: 600px; margin: 0 auto; background-color: #141414; border: 1px solid #262626; border-radius: 16px; overflow: hidden; }
@@ -47,7 +47,7 @@ export function buildPurchaseConfirmationHtml({
     </div>
     <div class="content">
       <p>Hello <strong>${customerName}</strong>,</p>
-      <p>Thank you for purchasing an API plan on Hub&Hub. Your payment has been processed and your developer entitlement has been provisioned.</p>
+      <p>Thank you for purchasing an API plan on Kruu. Your payment has been processed and your developer entitlement has been provisioned.</p>
       
       <div class="receipt-box">
         <div class="row">
@@ -85,7 +85,7 @@ export function buildPurchaseConfirmationHtml({
       </center>
     </div>
     <div class="footer">
-      <p>Hub&Hub Developer Platform • Edge Gateway & Microservice Directory</p>
+      <p>Kruu Developer Platform • Edge Gateway & Microservice Directory</p>
       <p>For your security, raw API keys are never transmitted via email. View and rotate your keys securely inside your account.</p>
     </div>
   </div>
@@ -118,7 +118,7 @@ export async function queuePurchaseConfirmationEmail({
   });
   const dashboardUrl = `${env.frontendUrl}/#my-apis`;
 
-  const subject = `Purchase Confirmation: ${productName} (${planName}) - Hub&Hub`;
+  const subject = `Purchase Confirmation: ${productName} (${planName}) - Kruu`;
   const htmlContent = buildPurchaseConfirmationHtml({
     customerName: recipientName || "Developer",
     productName,
@@ -215,7 +215,7 @@ export async function dispatchOutboxEmailAsync(outboxId) {
       },
       body: JSON.stringify({
         sender: {
-          name: env.brevoSenderName || "Hub&Hub Platform",
+          name: env.brevoSenderName || "Kruu Platform",
           email: env.brevoSenderEmail,
         },
         to: [

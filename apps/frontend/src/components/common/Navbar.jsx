@@ -45,8 +45,11 @@ export const Navbar = ({ onOpenSidebar }) => {
           </button>
 
           <div className="flex items-center gap-2 text-sm font-medium">
-            <span className="hidden sm:inline font-mono text-xs dark:text-neutral-400 text-neutral-500">
-              Hubs & Hubs
+            <div className="w-6 h-6 rounded bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm shrink-0">
+              <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
+            </div>
+            <span className="hidden sm:inline font-bold text-xs dark:text-neutral-200 text-neutral-800 font-sans">
+              Kruu
             </span>
             <span className="hidden sm:inline text-neutral-400 dark:text-neutral-600">/</span>
             <span className="font-semibold text-xs md:text-sm tracking-tight dark:text-white text-black">

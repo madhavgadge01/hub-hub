@@ -333,7 +333,7 @@ export async function adminCreateApiProduct(data) {
     slug,
     description,
     overview,
-    provider_name = "Hub&Hub Edge",
+    provider_name = "Kruu Edge",
     icon_url,
     version = "v1.0.0",
     status = "published",

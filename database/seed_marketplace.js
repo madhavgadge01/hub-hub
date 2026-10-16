@@ -60,8 +60,8 @@ export const MARKETPLACE_SEED_DATA = {
       name: "Dynamic QR Code Generation Engine",
       slug: "qr-code",
       description: "Generate vector SVG and high-resolution PNG QR codes with customizable dimensions, margins, and Reed-Solomon error correction levels.",
-      overview: "The Hub&Hub QR Code Generation Engine provides sub-15ms generation of custom, production-ready QR codes for tickets, URLs, authentication tokens, and point-of-sale systems. Outputs both lossless vector SVGs and base64-encoded PNG data URLs.",
-      provider_name: "Hub&Hub Edge",
+      overview: "The Kruu QR Code Generation Engine provides sub-15ms generation of custom, production-ready QR codes for tickets, URLs, authentication tokens, and point-of-sale systems. Outputs both lossless vector SVGs and base64-encoded PNG data URLs.",
+      provider_name: "Kruu Edge",
       icon_url: "/icons/api-qrcode.svg",
       version: "v1.4.0",
       status: "published",
@@ -170,7 +170,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "url-metadata",
       description: "Extract rich OpenGraph images, Twitter Card tags, favicons, site names, and semantic metadata from any public URL with built-in SSRF protection.",
       overview: "An enterprise-grade URL unfurler and parser designed to power link preview widgets, search engines, and bookmarking apps. Automatically follows safe redirects and safeguards against internal network SSRF exploits.",
-      provider_name: "Hub&Hub Edge",
+      provider_name: "Kruu Edge",
       icon_url: "/icons/api-metadata.svg",
       version: "v1.8.0",
       status: "published",
@@ -274,7 +274,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "json-validator",
       description: "Validate JSON syntax compliance, calculate object depth, count keys, and pinpoint parse errors with precise line and column coordinates.",
       overview: "High-performance JSON syntax verification and structure profiling microservice. Ideal for API gateways, payload validation, and pre-processing pipelines.",
-      provider_name: "Hub&Hub Core",
+      provider_name: "Kruu Core",
       icon_url: "/icons/api-validator.svg",
       version: "v2.0.1",
       status: "published",
@@ -314,7 +314,7 @@ export const MARKETPLACE_SEED_DATA = {
           }
         },
         exampleRequest: {
-          json: "{\"service\":\"hub-hub\",\"version\":\"2.0\",\"ready\":true}"
+          json: "{\"service\":\"kruu\",\"version\":\"2.0\",\"ready\":true}"
         },
         exampleResponse: {
           success: true,
@@ -374,7 +374,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "json-formatter",
       description: "Prettify or minify JSON payloads with configurable indentation, byte-savings calculation, and compression ratios.",
       overview: "Streamline raw JSON data for human readability or compress payloads for network transmission savings with exact byte metrics.",
-      provider_name: "Hub&Hub Core",
+      provider_name: "Kruu Core",
       icon_url: "/icons/api-formatter.svg",
       version: "v1.6.0",
       status: "published",
@@ -416,13 +416,13 @@ export const MARKETPLACE_SEED_DATA = {
         exampleRequest: {
           action: "minify",
           input: {
-            title: "Hub&Hub",
+            title: "Kruu",
             features: ["Marketplace", "Playground", "Checkout"]
           }
         },
         exampleResponse: {
           success: true,
-          output: "{\"title\":\"Hub&Hub\",\"features\":[\"Marketplace\",\"Playground\",\"Checkout\"]}",
+          output: "{\"title\":\"Kruu\",\"features\":[\"Marketplace\",\"Playground\",\"Checkout\"]}",
           action: "minify",
           originalBytes: 124,
           formattedBytes: 67,
@@ -478,7 +478,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "card-validator",
       description: "Instant Luhn-10 mathematical verification, major card network identification (Visa, Mastercard, Amex, Discover, RuPay), and length checks with zero cardholder data storage.",
       overview: "Zero-retention card validation service designed to sanitize checkout forms, reject mistyped account numbers before payment gateway submission, and identify issuing networks.",
-      provider_name: "Hub&Hub Vault",
+      provider_name: "Kruu Vault",
       icon_url: "/icons/api-card.svg",
       version: "v1.4.2",
       status: "published",
@@ -576,7 +576,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "password-generator",
       description: "Generate cryptographically secure passwords, random tokens, API secrets, and alphanumeric keys with configurable character classes and entropy constraints.",
       overview: "Uses Node.js CSPRNG cryptographic primitives to generate unguessable passwords, session tokens, and API secrets with guaranteed entropy levels.",
-      provider_name: "Hub&Hub Crypto",
+      provider_name: "Kruu Crypto",
       icon_url: "/icons/api-keygen.svg",
       version: "v1.2.0",
       status: "published",
@@ -679,7 +679,7 @@ export const MARKETPLACE_SEED_DATA = {
       slug: "password-checker",
       description: "High-precision password strength evaluation using Shannon entropy scoring, character pool analysis, dictionary leak alerts, and estimated crack times.",
       overview: "Protect your users from weak passwords before account creation. Analyzes password complexity, Shannon entropy, and provides real-time security suggestions.",
-      provider_name: "Hub&Hub Crypto",
+      provider_name: "Kruu Crypto",
       icon_url: "/icons/api-security.svg",
       version: "v2.1.0",
       status: "published",
@@ -783,7 +783,7 @@ export const MARKETPLACE_SEED_DATA = {
 export async function seedMarketplace() {
   const client = await pool.connect();
   try {
-    console.log("🌱 Seeding Hub&Hub API Marketplace catalogue into PostgreSQL...");
+    console.log("🌱 Seeding Kruu API Marketplace catalogue into PostgreSQL...");
     await client.query("BEGIN");
 
     // 1. Seed Categories

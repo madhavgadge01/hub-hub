@@ -17,7 +17,7 @@ export const RedeemCouponCard = () => {
   const [status, setStatus] = useState(null); // { type: 'success' | 'error', message: string }
   const [loading, setLoading] = useState(false);
 
-  const sampleCoupons = ['DEVHUBS2026', 'LAUNCH1000', 'OCTOBERFREE', 'SUPERDEV'];
+  const sampleCoupons = ['KRUU2026', 'LAUNCH1000', 'OCTOBERFREE', 'SUPERDEV'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,7 +81,7 @@ export const RedeemCouponCard = () => {
                 setCode(e.target.value.toUpperCase());
                 if (status) setStatus(null);
               }}
-              placeholder="Enter coupon code (e.g. DEVHUBS2026)"
+              placeholder="Enter coupon code (e.g. KRUU2026)"
               className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs font-mono tracking-wider uppercase border dark:bg-black dark:border-[#333333] bg-white border-[#eaeaea] dark:text-white text-black placeholder:normal-case placeholder:font-sans placeholder:text-neutral-400 focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>

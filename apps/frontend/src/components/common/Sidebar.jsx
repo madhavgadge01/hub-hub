@@ -58,16 +58,20 @@ export const Sidebar = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="flex items-center gap-2.5 group"
             >
-              <div className="w-8 h-8 rounded-lg bg-black dark:bg-[#111111] border dark:border-[#333333] border-neutral-300 flex items-center justify-center p-1.5 transition-transform group-hover:scale-105 shadow-sm">
-                <Code2 className="w-5 h-5 text-blue-500" />
+              <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center p-0.5 overflow-hidden shadow-sm transition-transform group-hover:scale-105 shrink-0">
+                <img
+                  src="/kruu_logo.png"
+                  alt="Kruu"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-sm tracking-tight dark:text-white text-black">
-                    Hubs & Hubs
+                  <span className="font-extrabold text-base tracking-tight dark:text-white text-black font-sans">
+                    Kruu
                   </span>
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold">
-                    v1.0
+                    v2.0
                   </span>
                 </div>
                 <span className="text-[10.5px] dark:text-neutral-400 text-neutral-500 font-mono tracking-wider">
@@ -143,7 +147,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               href="#docs"
               onClick={(e) => {
                 e.preventDefault();
-                alert('Hubs & Hubs API Documentation: All endpoints adhere to RESTful JSON specs with standard HTTP status codes.');
+                alert('Kruu API Documentation: All endpoints adhere to RESTful JSON specs with standard HTTP status codes.');
               }}
               className="flex items-center justify-between px-3 py-2 rounded-lg text-xs dark:text-neutral-400 text-neutral-600 dark:hover:bg-neutral-900/50 hover:bg-neutral-50 hover:text-black dark:hover:text-white transition-colors"
             >

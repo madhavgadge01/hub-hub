@@ -7,7 +7,7 @@ export const healthCheck = (req, res) => {
   res.status(200).json({
     success: true,
     status: "ok",
-    message: "Hub&Hub API service is running.",
+    message: "Kruu API service is running.",
     uptime: Math.floor((Date.now() - startTime) / 1000),
     timestamp: new Date().toISOString(),
   });

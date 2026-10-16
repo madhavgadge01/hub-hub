@@ -17,7 +17,7 @@ export async function extractUrlMetadata(targetUrl) {
       method: "GET",
       signal: AbortSignal.timeout(6000), // 6-second timeout
       headers: {
-        "User-Agent": "HubHub-MetadataBot/2.0 (+https://hubhub.dev)",
+        "User-Agent": "Kruu-MetadataBot/2.0 (+https://kruu.dev)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       redirect: "follow",

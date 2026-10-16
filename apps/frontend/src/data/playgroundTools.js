@@ -10,7 +10,7 @@ export const PLAYGROUND_TOOLS = [
     description: 'Synthesize custom high-resolution PNG data URLs and vector SVG QR codes.',
     defaultPayload: JSON.stringify(
       {
-        text: 'https://hubhub.dev/developer/quickstart',
+        text: 'https://kruu.dev/developer/quickstart',
         format: 'png',
         size: 320,
         margin: 2,
@@ -58,7 +58,7 @@ export const PLAYGROUND_TOOLS = [
     description: 'Verify syntax compliance, calculate object depth, key count, and pin syntax errors.',
     defaultPayload: JSON.stringify(
       {
-        service: 'hub-hub-api',
+        service: 'kruu-api',
         version: '2.0.0',
         protocols: ['http/2', 'tls1.3'],
         features: {
@@ -89,7 +89,7 @@ export const PLAYGROUND_TOOLS = [
         action: 'minify',
         indent: 2,
         input: {
-          service: 'Hub&Hub',
+          service: 'Kruu',
           endpoints: ['/api/v1/qr', '/api/v1/url-metadata', '/api/v1/json-validator'],
           enabled: true,
         },

@@ -1,4 +1,4 @@
-# Hub&Hub — Developer Utility Platform & Microservice Suite
+# Kruu — Developer Utility Platform & Microservice Suite
 
 A high-performance, production-hardened developer platform providing an interactive sandbox and developer REST APIs with dual-track authentication, atomic Redis rate limiting, and Server-Side Request Forgery (SSRF) defense.
 

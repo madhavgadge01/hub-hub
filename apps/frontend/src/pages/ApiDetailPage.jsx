@@ -112,17 +112,17 @@ export const ApiDetailPage = ({
 
   const getCodeSnippet = () => {
     const endpoint = product.endpoint_path || doc.endpoint || '/qr';
-    const samplePayload = doc.exampleRequest || { text: 'https://hubhub.dev/marketplace' };
+    const samplePayload = doc.exampleRequest || { text: 'https://kruu.dev/marketplace' };
     const payloadStr = JSON.stringify(samplePayload, null, 2);
 
     switch (selectedLanguage) {
       case 'node':
         return `// Native Node.js 18+ or node-fetch
-const response = await fetch("https://api.hubhub.dev/v1${endpoint}", {
+const response = await fetch("https://api.kruu.dev/v1${endpoint}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": process.env.HUBS_API_KEY // Provided in your developer profile
+    "x-api-key": process.env.KRUU_API_KEY // Provided in your developer profile
   },
   body: JSON.stringify(${payloadStr})
 });
@@ -134,10 +134,10 @@ console.log(data);`;
         return `import os
 import requests
 
-url = "https://api.hubhub.dev/v1${endpoint}"
+url = "https://api.kruu.dev/v1${endpoint}"
 headers = {
     "Content-Type": "application/json",
-    "x-api-key": os.getenv("HUBS_API_KEY")
+    "x-api-key": os.getenv("KRUU_API_KEY")
 }
 payload = ${payloadStr}
 
@@ -146,9 +146,9 @@ print(response.json())`;
 
       case 'curl':
       default:
-        return `curl -X POST "https://api.hubhub.dev/v1${endpoint}" \\
+        return `curl -X POST "https://api.kruu.dev/v1${endpoint}" \\
   -H "Content-Type: application/json" \\
-  -H "x-api-key: $HUBS_API_KEY" \\
+  -H "x-api-key: $KRUU_API_KEY" \\
   -d '${JSON.stringify(samplePayload)}'`;
     }
   };
@@ -225,7 +225,7 @@ print(response.json())`;
               </p>
 
               <div className="flex flex-wrap items-center gap-4 text-xs font-mono dark:text-neutral-400 text-neutral-500 pt-1">
-                <span>By {product.provider_name || 'Hub&Hub Edge'}</span>
+                <span>By {product.provider_name || 'Kruu Edge'}</span>
                 <span>•</span>
                 <span className="text-emerald-500 font-semibold">⚡ Sub-15ms Edge Latency</span>
                 <span>•</span>
@@ -378,7 +378,7 @@ print(response.json())`;
                 {product.http_method || 'POST'}
               </span>
               <span className="dark:text-neutral-200 text-neutral-900 font-semibold select-all text-sm">
-                https://api.hubhub.dev{product.base_url || '/api/v1'}{product.endpoint_path}
+                https://api.kruu.dev{product.base_url || '/api/v1'}{product.endpoint_path}
               </span>
             </div>
           </div>
@@ -407,7 +407,7 @@ print(response.json())`;
                     <td className="p-3 text-blue-400 font-semibold">x-api-key</td>
                     <td className="p-3 text-amber-400">Yes (Production)</td>
                     <td className="p-3 dark:text-neutral-300 text-neutral-700">
-                      Your issued Hub&Hub developer secret key (e.g. <code className="bg-neutral-500/10 px-1 py-0.5 rounded">dh_live_...</code>)
+                      Your issued Kruu developer secret key (e.g. <code className="bg-neutral-500/10 px-1 py-0.5 rounded">dh_live_...</code>)
                     </td>
                   </tr>
                 </tbody>
@@ -690,7 +690,7 @@ print(response.json())`;
               <span>Zero Retention Security Architecture</span>
             </div>
             <p className="text-xs dark:text-neutral-400 text-neutral-600 leading-relaxed">
-              Hub&Hub microservices process payloads in memory with zero persistent storage of confidential payload data. All connections require TLS 1.3 encryption, and private subnet traversals are filtered by SSRF security defenses.
+              Kruu microservices process payloads in memory with zero persistent storage of confidential payload data. All connections require TLS 1.3 encryption, and private subnet traversals are filtered by SSRF security defenses.
             </p>
           </div>
         </div>

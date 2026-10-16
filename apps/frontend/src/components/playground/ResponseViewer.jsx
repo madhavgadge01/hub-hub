@@ -26,7 +26,7 @@ export const ResponseViewer = ({
   const jsonString = response ? JSON.stringify(response.data, null, 2) : '';
 
   const getCurlCommand = () => {
-    return `curl -X ${tool.method} "https://api.hubshubs.dev${tool.endpoint}" \\
+    return `curl -X ${tool.method} "https://api.kruu.dev${tool.endpoint}" \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: ${authKey || 'YOUR_API_KEY'}" \\
   -d '${tool.defaultPayload.replace(/\n\s*/g, ' ')}'`;

@@ -4,6 +4,8 @@ import api from '../api/client';
 const AppContext = createContext();
 
 const VALID_COUPONS = {
+  'KRUU2026': { credits: 5000, label: 'Early Adopter Developer Grant' },
+  'DEVKRUU2026': { credits: 5000, label: 'Early Adopter Developer Grant' },
   'DEVHUBS2026': { credits: 5000, label: 'Early Adopter Developer Grant' },
   'LAUNCH1000': { credits: 1000, label: 'Platform Launch Booster' },
   'OCTOBERFREE': { credits: 2500, label: 'Hacktoberfest Community Bonus' },
@@ -292,7 +294,7 @@ export const AppProvider = ({ children }) => {
     if (!coupon) {
       return {
         success: false,
-        message: 'Invalid code. Try "DEVHUBS2026", "LAUNCH1000", or "OCTOBERFREE".',
+        message: 'Invalid code. Try "KRUU2026", "LAUNCH1000", or "OCTOBERFREE".',
       };
     }
 

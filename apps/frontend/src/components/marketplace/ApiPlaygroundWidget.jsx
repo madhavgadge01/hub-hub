@@ -26,7 +26,7 @@ export const ApiPlaygroundWidget = ({ product }) => {
   const [customApiKey, setCustomApiKey] = useState('');
 
   // Initial inputs based on API slug
-  const [qrText, setQrText] = useState('https://hubhub.dev/marketplace');
+  const [qrText, setQrText] = useState('https://kruu.dev/marketplace');
   const [qrFormat, setQrFormat] = useState('png');
   const [qrSize, setQrSize] = useState(280);
   const [qrMargin, setQrMargin] = useState(2);
@@ -37,7 +37,7 @@ export const ApiPlaygroundWidget = ({ product }) => {
   const [jsonInput, setJsonInput] = useState(
     JSON.stringify(
       {
-        platform: 'Hub&Hub',
+        platform: 'Kruu',
         version: '2.0.0',
         protocols: ['http/2', 'tls1.3'],
         edgeEnabled: true,
@@ -186,7 +186,7 @@ export const ApiPlaygroundWidget = ({ product }) => {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </h3>
             <p className="text-xs dark:text-neutral-400 text-neutral-500">
-              Test real microservice payloads directly against Hub&Hub edge nodes before purchasing.
+              Test real microservice payloads directly against Kruu edge nodes before purchasing.
             </p>
           </div>
         </div>
@@ -559,7 +559,7 @@ export const ApiPlaygroundWidget = ({ product }) => {
             ) : (
               <div className="py-12 text-center text-xs text-neutral-400 space-y-2">
                 <Sparkles className="w-5 h-5 mx-auto text-neutral-500" />
-                <p>Click "Execute Real API Request" to see instant live response from Hub&Hub servers.</p>
+                <p>Click "Execute Real API Request" to see instant live response from Kruu servers.</p>
               </div>
             )}
           </div>

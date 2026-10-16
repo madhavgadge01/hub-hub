@@ -26,7 +26,7 @@ export const PLAYGROUND_SERVICES = [
     method: 'POST',
     description: 'Synthesize custom high-resolution PNG data URLs and vector SVG QR codes with error correction.',
     defaultInput: {
-      text: 'https://hubhub.dev/marketplace',
+      text: 'https://kruu.dev/marketplace',
       format: 'png',
       size: 320,
       margin: 2,
@@ -56,7 +56,7 @@ export const PLAYGROUND_SERVICES = [
     defaultInput: {
       json: JSON.stringify(
         {
-          service: 'hub-hub-api',
+          service: 'kruu-api',
           version: '2.0.0',
           protocols: ['http/2', 'tls1.3'],
           features: {
@@ -79,7 +79,7 @@ export const PLAYGROUND_SERVICES = [
     description: 'Prettify or minify JSON payloads with precise byte savings and compression percentage metrics.',
     defaultInput: {
       input: JSON.stringify({
-        service: 'Hub&Hub Edge',
+        service: 'Kruu Edge',
         endpoints: ['/api/v1/qr', '/api/v1/url-metadata', '/api/v1/json-validator'],
         enabled: true,
       }),
@@ -149,7 +149,7 @@ export const PlaygroundPage = ({ initialSlug }) => {
   const [selectedApiKey, setSelectedApiKey] = useState('');
 
   // Service-specific inputs
-  const [qrText, setQrText] = useState('https://hubhub.dev/marketplace');
+  const [qrText, setQrText] = useState('https://kruu.dev/marketplace');
   const [qrFormat, setQrFormat] = useState('png');
   const [qrSize, setQrSize] = useState(320);
   const [qrMargin, setQrMargin] = useState(2);
@@ -160,7 +160,7 @@ export const PlaygroundPage = ({ initialSlug }) => {
   const [jsonText, setJsonText] = useState(
     JSON.stringify(
       {
-        service: 'hub-hub-api',
+        service: 'kruu-api',
         version: '2.0.0',
         protocols: ['http/2', 'tls1.3'],
         features: ['Marketplace', 'Playground', 'Checkout'],
@@ -332,7 +332,7 @@ export const PlaygroundPage = ({ initialSlug }) => {
             Interactive API Playground
           </h1>
           <p className="text-xs sm:text-sm dark:text-neutral-400 text-neutral-600 mt-1">
-            Test live microservice payloads directly against Hub&Hub edge servers before purchasing an entitlement.
+            Test live microservice payloads directly against Kruu edge servers before purchasing an entitlement.
           </p>
         </div>
 
@@ -431,7 +431,7 @@ export const PlaygroundPage = ({ initialSlug }) => {
                     type="text"
                     value={qrText}
                     onChange={(e) => setQrText(e.target.value)}
-                    placeholder="https://hubhub.dev"
+                    placeholder="https://kruu.dev"
                     className="w-full px-3 py-2 rounded-xl text-xs font-mono border dark:bg-[#121212] bg-neutral-50 dark:border-[#333333] border-neutral-300 dark:text-white text-black"
                   />
                 </div>
@@ -737,7 +737,7 @@ export const PlaygroundPage = ({ initialSlug }) => {
             ) : (
               <div className="py-24 text-center text-xs text-neutral-400 space-y-2">
                 <Terminal className="w-8 h-8 mx-auto text-neutral-500 stroke-[1.5]" />
-                <p>Click "Send Request" to test against Hub&Hub microservice endpoints.</p>
+                <p>Click "Send Request" to test against Kruu microservice endpoints.</p>
               </div>
             )}
           </div>

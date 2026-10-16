@@ -102,9 +102,9 @@ export const CheckoutModal = ({
         key: orderRes.keyId,
         amount: orderRes.amount,
         currency: orderRes.currency,
-        name: 'Hub&Hub Developer Platform',
+        name: 'Kruu Developer Platform',
         description: `${product.name} - ${selectedPlan.name}`,
-        image: '/icons/api-qrcode.svg',
+        image: '/kruu_logo.png',
         order_id: orderRes.razorpayOrderId,
         prefill: {
           name: user.name,

@@ -134,7 +134,7 @@ export const ApiCard = ({
                 {api.category_name || api.category}
               </span>
               <span className="text-[10px] font-mono text-neutral-400">
-                {api.provider_name || 'Hub&Hub Edge'}
+                {api.provider_name || 'Kruu Edge'}
               </span>
             </div>
           </div>

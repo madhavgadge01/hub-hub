@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     // Check saved preference or default to dark as requested
-    const savedTheme = localStorage.getItem('hub-theme');
+    const savedTheme = localStorage.getItem('kruu-theme') || localStorage.getItem('hub-theme');
     if (savedTheme === 'light' || savedTheme === 'dark') {
       return savedTheme;
     }
@@ -21,7 +21,7 @@ export const ThemeProvider = ({ children }) => {
       root.classList.add('light');
       root.classList.remove('dark');
     }
-    localStorage.setItem('hub-theme', theme);
+    localStorage.setItem('kruu-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

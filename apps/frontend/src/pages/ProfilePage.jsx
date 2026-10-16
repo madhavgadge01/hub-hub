@@ -33,15 +33,15 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
   if (!user) {
     return (
       <div className="max-w-xl mx-auto py-24 px-4 text-center space-y-5 animate-fade-in">
-        <div className="w-14 h-14 rounded-2xl dark:bg-[#141414] bg-neutral-100 border dark:border-[#333333] border-neutral-300 flex items-center justify-center mx-auto text-blue-500 shadow-md">
-          <Lock className="w-7 h-7" />
+        <div className="w-16 h-16 rounded-2xl bg-white border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto shadow-md overflow-hidden p-1.5">
+          <img src="/kruu_logo.png" alt="Kruu" className="w-full h-full object-contain" />
         </div>
         <div className="space-y-1.5">
-          <h2 className="text-xl font-extrabold tracking-tight dark:text-white text-black">
+          <h2 className="text-xl font-extrabold tracking-tight dark:text-white text-black font-sans">
             Authentication Required
           </h2>
           <p className="text-xs dark:text-neutral-400 text-neutral-600 max-w-md mx-auto leading-relaxed">
-            Please sign in to your Hub&Hub developer account to view issued API keys, active subscriptions, usage telemetry, and billing details.
+            Please sign in to your Kruu developer account to view issued API keys, active subscriptions, usage telemetry, and billing details.
           </p>
         </div>
         <button
@@ -56,10 +56,10 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
   }
 
   const sampleKey = apiKeys.length > 0 ? `${apiKeys[0].keyPrefix}••••••••` : 'dh_live_YOUR_SECRET_KEY';
-  const cliSnippet = `curl -X POST https://api.hubhub.dev/v1/qr \\
+  const cliSnippet = `curl -X POST https://api.kruu.dev/v1/qr \\
   -H "x-api-key: ${sampleKey}" \\
   -H "Content-Type: application/json" \\
-  -d '{"text": "https://hubhub.dev"}'`;
+  -d '{"text": "https://kruu.dev"}'`;
 
   const copyCli = () => {
     navigator.clipboard.writeText(cliSnippet);
