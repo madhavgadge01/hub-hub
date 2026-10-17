@@ -55,8 +55,21 @@ export const env = {
 
   // Brevo Transactional Email Integration
   brevoApiKey: process.env.BREVO_API_KEY || null,
-  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "support@kruu.dev",
-  brevoSenderName: process.env.BREVO_SENDER_NAME || "Kruu Platform",
+  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "support@kruu.online",
+  brevoSenderName: process.env.BREVO_SENDER_NAME || "Kruu",
+
+  // Cloudflare Turnstile CAPTCHA Integration
+  turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || null,
+  turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY || null,
+
+  // Google OAuth 2.0 Integration
+  googleClientId: process.env.GOOGLE_CLIENT_ID || null,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
+  googleCallbackUrl:
+    process.env.GOOGLE_CALLBACK_URL ||
+    (process.env.BACKEND_URL
+      ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+      : "http://localhost:8000/api/auth/google/callback"),
 
   // Application URLs
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Layers, ArrowRight, Trash2 } from 'lucide-react';
+import { getToolLogoUrl } from '../../utils/toolLogos';
 
 /**
  * Compact floating comparison tray / dock.
@@ -26,7 +27,7 @@ export const ToolCompareDock = ({
             >
               <div className="w-6 h-6 rounded-lg dark:bg-[#121212] bg-white p-1 flex items-center justify-center border dark:border-[#333333] border-neutral-200 shrink-0">
                 <img
-                  src={tool.icon_url}
+                  src={getToolLogoUrl(tool)}
                   alt=""
                   className="w-full h-full object-contain"
                   onError={(e) => {

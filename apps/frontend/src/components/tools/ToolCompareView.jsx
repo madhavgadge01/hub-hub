@@ -13,6 +13,7 @@ import {
   Globe,
 } from 'lucide-react';
 import api from '../../api/client';
+import { getToolLogoUrl } from '../../utils/toolLogos';
 
 export const ToolCompareView = ({
   toolIdentifiers = [], // Array of slugs or IDs
@@ -134,7 +135,7 @@ export const ToolCompareView = ({
                           <div className="flex items-center justify-between">
                             <div className="w-10 h-10 rounded-xl dark:bg-[#1e1e1e] bg-white p-1.5 border dark:border-[#2f2f2f] border-neutral-200 flex items-center justify-center">
                               <img
-                                src={tool.icon_url}
+                                src={getToolLogoUrl(tool)}
                                 alt=""
                                 className="w-full h-full object-contain"
                                 onError={(e) => {

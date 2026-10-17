@@ -9,6 +9,8 @@ import ApiDetailPage from './pages/ApiDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
 import CertificateVerificationPage from './pages/CertificateVerificationPage';
@@ -145,6 +147,8 @@ function UltraMinimalistApp() {
           {/* Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Legacy Playground Alias Redirect */}
           <Route path="/playground" element={<Navigate to="/api-market" replace />} />

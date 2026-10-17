@@ -13,6 +13,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import api from '../../api/client';
+import { getToolLogoUrl } from '../../utils/toolLogos';
 
 export const ToolsSidebar = ({
   categories = [],
@@ -163,7 +164,7 @@ export const ToolsSidebar = ({
                   >
                     <div className="w-7 h-7 rounded-lg dark:bg-[#1e1e1e] bg-neutral-100 border dark:border-[#2f2f2f] border-neutral-200 p-1 flex items-center justify-center shrink-0">
                       <img
-                        src={tool.icon_url}
+                        src={getToolLogoUrl(tool)}
                         alt=""
                         className="w-full h-full object-contain"
                         onError={(e) => {

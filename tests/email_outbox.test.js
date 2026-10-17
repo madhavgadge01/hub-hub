@@ -49,12 +49,12 @@ describe("Brevo Email Outbox & Notification Idempotency Tests", () => {
     // Wait brief tick for the asynchronous outbox dispatcher to execute
     await new Promise((r) => setTimeout(r, 60));
 
-    // Verify outbox record in database has honest status config_missing (or sent if test key configured)
+    // Verify outbox record in database has honest status config_missing (or sent if test key configured, or failed if rejected by Brevo)
     const outboxRecord = await getEmailOutboxStatus(testPurchaseRef, "purchase_confirmation");
     assert.ok(outboxRecord);
     assert.equal(outboxRecord.referenceId, testPurchaseRef);
     assert.equal(outboxRecord.templateType, "purchase_confirmation");
-    assert.ok(["config_missing", "sent"].includes(outboxRecord.status));
+    assert.ok(["config_missing", "sent", "failed"].includes(outboxRecord.status));
   });
 
   test("Idempotency: Repeated notifications for same purchase reference do not produce duplicates", async () => {

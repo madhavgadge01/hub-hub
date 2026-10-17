@@ -242,10 +242,10 @@ export async function getTools(req, res, next) {
     let orderByClause = "t.published_at DESC, t.created_at DESC";
     switch (sort) {
       case "name_asc":
-        orderByClause = "t.name ASC";
+        orderByClause = "LOWER(t.name) ASC, t.id ASC";
         break;
       case "name_desc":
-        orderByClause = "t.name DESC";
+        orderByClause = "LOWER(t.name) DESC, t.id DESC";
         break;
       case "price_asc":
         orderByClause = "starting_price ASC NULLS LAST, t.name ASC";

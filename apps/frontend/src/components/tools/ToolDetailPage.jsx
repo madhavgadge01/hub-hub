@@ -22,6 +22,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import api from '../../api/client';
+import { getToolLogoUrl } from '../../utils/toolLogos';
 
 // Clean & Reusable Accordion Component for hiding large text sections
 const AccordionItem = ({ icon: Icon, title, children, defaultOpen = false }) => {
@@ -204,7 +205,7 @@ export const ToolDetailPage = ({
             {/* Squircle Software Icon */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-4 shrink-0 flex items-center justify-center dark:bg-[#161616] bg-neutral-50 border dark:border-[#282828] border-neutral-200 shadow-sm">
               <img
-                src={tool.icon_url}
+                src={getToolLogoUrl(tool)}
                 alt={`${tool.name} icon`}
                 className="w-full h-full object-contain"
                 onError={(e) => {

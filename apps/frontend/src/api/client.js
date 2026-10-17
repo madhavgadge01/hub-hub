@@ -62,7 +62,15 @@ function toQueryString(params = {}) {
 export const api = {
   // Auth
   register: (payload) => apiFetch("/api/auth/register", { method: "POST", body: payload }),
+  verifyRegistrationOtp: (payload) => apiFetch("/api/auth/verify-registration-otp", { method: "POST", body: payload }),
+  resendOtp: (payload) => apiFetch("/api/auth/resend-otp", { method: "POST", body: payload }),
   login: (payload) => apiFetch("/api/auth/login", { method: "POST", body: payload }),
+  forgotPassword: (payload) => apiFetch("/api/auth/forgot-password", { method: "POST", body: payload }),
+  verifyResetOtp: (payload) => apiFetch("/api/auth/verify-reset-otp", { method: "POST", body: payload }),
+  resetPassword: (payload) => apiFetch("/api/auth/reset-password", { method: "POST", body: payload }),
+  getOAuthStatus: () => apiFetch("/api/auth/oauth-status", { method: "GET" }),
+  completeGoogleSignup: (payload) => apiFetch("/api/auth/google/complete-signup", { method: "POST", body: payload }),
+  getGoogleAuthUrl: (returnTo = "/profile") => `${API_BASE_URL}/api/auth/google?returnTo=${encodeURIComponent(returnTo)}`,
   logout: () => apiFetch("/api/auth/logout", { method: "POST" }),
   getMe: () => apiFetch("/api/auth/me", { method: "GET" }),
   refreshToken: () => apiFetch("/api/auth/refresh-token", { method: "POST" }),

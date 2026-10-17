@@ -4,12 +4,12 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Check saved preference or default to dark as requested
+    // Check saved preference or default to light as requested
     const savedTheme = localStorage.getItem('kruu-theme') || localStorage.getItem('hub-theme');
     if (savedTheme === 'light' || savedTheme === 'dark') {
       return savedTheme;
     }
-    return 'dark'; // Default to dark mode
+    return 'light'; // Default to light mode
   });
 
   useEffect(() => {

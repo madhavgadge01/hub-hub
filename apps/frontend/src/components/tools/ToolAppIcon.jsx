@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Layers, Plus, Check } from 'lucide-react';
+import { getToolLogoUrl } from '../../utils/toolLogos';
 
 /**
  * Smartphone-style App Icon component.
@@ -15,6 +16,7 @@ export const ToolAppIcon = ({
   onToggleCompare = null,
 }) => {
   const [imageError, setImageError] = useState(false);
+  const logoUrl = getToolLogoUrl(tool);
 
   // Generate fallback initials monogram if image fails
   const getInitials = (name) => {
@@ -56,9 +58,9 @@ export const ToolAppIcon = ({
         title={`Open ${tool.name} profile`}
         aria-label={`${tool.name} by ${tool.provider_name || 'developer'}`}
       >
-        {!imageError && tool.icon_url ? (
+        {!imageError && logoUrl ? (
           <img
-            src={tool.icon_url}
+            src={logoUrl}
             alt={`${tool.name} logo`}
             onError={() => setImageError(true)}
             className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-105 pointer-events-none"

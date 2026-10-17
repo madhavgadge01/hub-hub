@@ -45,16 +45,7 @@ export const ToolsOverviewPage = ({
   return (
     <div className="max-w-6xl mx-auto py-2 sm:py-4 px-2 sm:px-6 space-y-6">
       {/* Smartphone Home Screen Header / Subdued Status */}
-      <div className="flex items-center justify-between border-b dark:border-[#1a1a1a] border-[#eeeeee] pb-3">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <h1 className="text-sm font-semibold tracking-tight dark:text-neutral-200 text-neutral-800">
-            Latest Software Releases
-          </h1>
-          <span className="text-[11px] font-mono text-neutral-400">
-            ({total} published)
-          </span>
-        </div>
+      <div className="flex items-center justify-between  ">
         <button
           type="button"
           onClick={() => fetchLatestTools(true)}

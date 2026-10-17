@@ -174,8 +174,8 @@ export const AppProvider = ({ children }) => {
   };
 
   // Auth actions
-  const loginAction = async ({ email, password }) => {
-    const res = await api.login({ email, password });
+  const loginAction = async ({ email, password, turnstileToken }) => {
+    const res = await api.login({ email, password, turnstileToken });
     if (res.accessToken) {
       localStorage.setItem('kruu_auth_token', res.accessToken);
     }
@@ -197,7 +197,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const registerAction = async ({ name, email, password }) => {
-    const res = await api.register({ name, email, password });
+    return await api.register({ name, email, password });
+  };
+
+  const verifyRegistrationOtpAction = async ({ email, otp }) => {
+    const res = await api.verifyRegistrationOtp({ email, otp });
     if (res.accessToken) {
       localStorage.setItem('kruu_auth_token', res.accessToken);
     }
@@ -212,6 +216,30 @@ export const AppProvider = ({ children }) => {
         }),
       });
       await fetchApiKeys();
+      await fetchPurchases();
+      await fetchEntitlements();
+    }
+    return res;
+  };
+
+  const completeGoogleSignupAction = async ({ setupToken, name }) => {
+    const res = await api.completeGoogleSignup({ setupToken, name });
+    if (res.accessToken) {
+      localStorage.setItem('kruu_auth_token', res.accessToken);
+    }
+    if (res.user) {
+      setUser({
+        ...res.user,
+        avatar: res.user.avatar || '/avatars/avatar-1.svg',
+        role: res.user.role || 'Developer',
+        memberSince: new Date(res.user.created_at || Date.now()).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        }),
+      });
+      await fetchApiKeys();
+      await fetchPurchases();
+      await fetchEntitlements();
     }
     return res;
   };
@@ -351,6 +379,8 @@ export const AppProvider = ({ children }) => {
         setIsAuthModalOpen,
         login: loginAction,
         register: registerAction,
+        verifyRegistrationOtp: verifyRegistrationOtpAction,
+        completeGoogleSignup: completeGoogleSignupAction,
         logout: logoutAction,
         updateProfile: updateProfileAction,
         credits,
