@@ -5,6 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000
  */
 export async function apiFetch(endpoint, options = {}) {
   const url = endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const token = typeof window !== "undefined" ? localStorage.getItem("kruu_auth_token") : null;
 
   const config = {
     ...options,
@@ -12,6 +13,7 @@ export async function apiFetch(endpoint, options = {}) {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
   };
@@ -140,6 +142,15 @@ export const api = {
   getUserRecentActivity: (limit = 20) =>
     apiFetch(`/api/profile/usage/recent?limit=${limit}`),
   rotateKey: (id) => apiFetch(`/api/keys/${id}/rotate`, { method: "POST" }),
+
+  // Internship Certificate System
+  getCertificateStatus: () => apiFetch("/api/certificates/status"),
+  createCertificateOrder: () => apiFetch("/api/certificates/orders", { method: "POST" }),
+  verifyCertificatePayment: (payload) =>
+    apiFetch("/api/certificates/verify-payment", { method: "POST", body: payload }),
+  getCertificateDownloadUrl: (id = "") =>
+    `${API_BASE_URL}/api/certificates/download${id ? `/${id}` : ""}`,
+  verifyCertificatePublic: (code) => apiFetch(`/api/certificates/verify/${code}`),
 };
 
 export default api;

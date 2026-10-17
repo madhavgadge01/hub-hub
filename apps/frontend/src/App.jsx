@@ -11,9 +11,11 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
+import CertificateVerificationPage from './pages/CertificateVerificationPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
 import ToastContainer from './components/common/Toast';
+import CertificateEligibilityBanner from './components/common/CertificateEligibilityBanner';
 
 function UltraMinimalistApp() {
   const { isAuthModalOpen, setIsAuthModalOpen } = useApp();
@@ -39,6 +41,9 @@ function UltraMinimalistApp() {
     <div className="min-h-screen flex flex-col transition-colors duration-200 dark:bg-black bg-white dark:text-[#EDEDED] text-black">
       {/* Top Navigation for Application Pages (Tool Discovery, API Market, Profile, Auth) */}
       {!isLandingRoute && <TopNavigation activeTab={activeTab} />}
+
+      {/* Dismissible Certificate Eligibility Banner for verified learners */}
+      {!isLandingRoute && <CertificateEligibilityBanner />}
 
       {/* Main View Area with Dedicated URL-Based Routing */}
       <main className="flex-1 w-full">
@@ -121,6 +126,21 @@ function UltraMinimalistApp() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile/certificate"
+            element={
+              <ProtectedRoute>
+                <div className="px-4 sm:px-6 lg:px-8 pt-6">
+                  <ProfilePage />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Public Certificate Verification Routes */}
+          <Route path="/verify" element={<CertificateVerificationPage />} />
+          <Route path="/verify/:verificationCode" element={<CertificateVerificationPage />} />
+          <Route path="/verify/certificate/:verificationCode" element={<CertificateVerificationPage />} />
 
           {/* Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />

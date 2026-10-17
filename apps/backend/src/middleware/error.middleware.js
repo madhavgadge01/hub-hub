@@ -44,6 +44,7 @@ export function errorHandler(err, req, res, next) {
     success: false,
     statusCode,
     message,
+    error: message,
     ...(errors.length > 0 ? { errors } : {}),
     ...(env.nodeEnv === "test" && statusCode >= 500 ? { debug: err.message } : {}),
   });

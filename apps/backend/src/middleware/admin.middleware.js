@@ -1,44 +1,73 @@
 import { ApiError } from "../utils/apiError.js";
 import { env } from "../config/env.js";
 import pool from "../config/db.js";
+import { verifyAccessToken } from "../utils/token.js";
 
-
+/**
+ * Strict server-side admin authorization middleware.
+ * Verifies that the authenticated user possesses an explicit 'admin' role in PostgreSQL.
+ * Rejects regular users, unauthenticated requests, and suspended accounts.
+ */
 export async function requireAdmin(req, res, next) {
   try {
-    
+    // 1. Check for configured master API key header (server-to-server programmatic access)
     const apiKeyHeader = req.headers["x-api-key"];
     if (apiKeyHeader && env.masterApiKey && apiKeyHeader === env.masterApiKey) {
       req.isAdmin = true;
+      req.user = req.user || { id: "system_master", email: "system@kruu.online", role: "admin" };
       return next();
     }
 
+    // 2. Resolve authenticated user if verifyAuth wasn't previously called
+    let userId = req.user?.id;
+    if (!userId) {
+      const token =
+        req.cookies?.accessToken ||
+        req.header("Authorization")?.replace(/^Bearer\s+/i, "");
 
-    if (!req.user || !req.user.id) {
-      throw new ApiError(401, "Authentication required to access administrator functions.");
+      if (!token) {
+        throw new ApiError(401, "Authentication required to access administrator functions.");
+      }
+
+      let decoded;
+      try {
+        decoded = verifyAccessToken(token);
+        userId = decoded.userId;
+      } catch (err) {
+        if (err.name === "TokenExpiredError") {
+          throw new ApiError(401, "Admin session has expired. Please sign in again.");
+        }
+        throw new ApiError(401, "Invalid administrative access token.");
+      }
     }
 
-    // 3. Verify user role from database
+    // 3. Query authoritative user record from PostgreSQL
     const result = await pool.query(
-      "SELECT id, role, email FROM users WHERE id = $1 LIMIT 1;",
-      [req.user.id]
+      "SELECT id, name, email, role, status FROM users WHERE id = $1 LIMIT 1;",
+      [userId]
     );
 
     const user = result.rows[0];
     if (!user) {
-      throw new ApiError(401, "User record not found.");
+      throw new ApiError(401, "Administrator record not found.");
     }
 
-    // In development mode, allow users with role 'admin' or any authenticated user for testing
-    const isAdmin = user.role === "admin" || (!env.isProduction && (user.role === "admin" || req.headers["x-admin-bypass"] === "true"));
-
-    if (!isAdmin && user.role !== "admin") {
+    // 4. Enforce explicit 'admin' role
+    if (user.role !== "admin") {
       throw new ApiError(403, "Access denied. Administrator privileges are required.");
     }
 
-    req.user.role = user.role;
+    // 5. Verify admin account is not suspended
+    if (user.status === "suspended") {
+      throw new ApiError(403, "Administrator account has been suspended.");
+    }
+
+    req.user = user;
     req.isAdmin = true;
     next();
   } catch (err) {
     next(err);
   }
 }
+
+export default requireAdmin;

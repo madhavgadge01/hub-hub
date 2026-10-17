@@ -176,6 +176,9 @@ export const AppProvider = ({ children }) => {
   // Auth actions
   const loginAction = async ({ email, password }) => {
     const res = await api.login({ email, password });
+    if (res.accessToken) {
+      localStorage.setItem('kruu_auth_token', res.accessToken);
+    }
     if (res.user) {
       setUser({
         ...res.user,
@@ -195,6 +198,9 @@ export const AppProvider = ({ children }) => {
 
   const registerAction = async ({ name, email, password }) => {
     const res = await api.register({ name, email, password });
+    if (res.accessToken) {
+      localStorage.setItem('kruu_auth_token', res.accessToken);
+    }
     if (res.user) {
       setUser({
         ...res.user,
@@ -214,6 +220,7 @@ export const AppProvider = ({ children }) => {
     try {
       await api.logout();
     } catch {}
+    localStorage.removeItem('kruu_auth_token');
     setUser(null);
     setApiKeys([]);
     setPurchases([]);

@@ -27,7 +27,7 @@ export async function verifyAuth(req, res, next) {
 
     const result = await pool.query(
       `
-      SELECT id, name, email, created_at
+      SELECT id, name, email, role, status, created_at
       FROM users
       WHERE id = $1
       LIMIT 1;
@@ -38,6 +38,10 @@ export async function verifyAuth(req, res, next) {
     const user = result.rows[0];
     if (!user) {
       throw new ApiError(401, "User associated with this token no longer exists.");
+    }
+
+    if (user.status === "suspended") {
+      throw new ApiError(403, "Your account has been suspended. Please contact support.");
     }
 
     req.user = user;
@@ -60,10 +64,10 @@ export async function optionalAuth(req, res, next) {
     if (token) {
       const decoded = verifyAccessToken(token);
       const result = await pool.query(
-        "SELECT id, name, email FROM users WHERE id = $1 LIMIT 1;",
+        "SELECT id, name, email, role, status FROM users WHERE id = $1 LIMIT 1;",
         [decoded.userId]
       );
-      if (result.rows[0]) {
+      if (result.rows[0] && result.rows[0].status !== "suspended") {
         req.user = result.rows[0];
       }
     }

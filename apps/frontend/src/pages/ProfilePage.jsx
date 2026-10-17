@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Key,
@@ -13,6 +13,7 @@ import {
   User,
   ArrowRight,
   Lock,
+  Award,
 } from 'lucide-react';
 import UserProfileHeader from '../components/profile/UserProfileHeader';
 import ApiKeysTable from '../components/profile/ApiKeysTable';
@@ -21,8 +22,10 @@ import ApiUsageAnalyticsCard from '../components/profile/ApiUsageAnalyticsCard';
 import PaymentHistoryCard from '../components/profile/PaymentHistoryCard';
 import CreditsBillingCard from '../components/profile/CreditsBillingCard';
 import RedeemCouponCard from '../components/profile/RedeemCouponCard';
+import InternshipCertificateCard from '../components/profile/InternshipCertificateCard';
 import ProfileModal from '../components/profile/ProfileModal';
 import { useApp } from '../context/AppContext';
+import api from '../api/client';
 
 export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
   const { user, apiKeys, purchases, setIsAuthModalOpen, addToast } = useApp();
@@ -34,6 +37,7 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
     if (location.pathname.includes('/purchases')) return 'purchased';
     if (location.pathname.includes('/analytics')) return 'analytics';
     if (location.pathname.includes('/billing')) return 'billing';
+    if (location.pathname.includes('/certificate')) return 'certificate';
     return 'keys';
   };
 
@@ -44,10 +48,52 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
     else if (tab === 'purchased') navigate('/profile/purchases');
     else if (tab === 'analytics') navigate('/profile/analytics');
     else if (tab === 'billing') navigate('/profile/billing');
+    else if (tab === 'certificate') navigate('/profile/certificate');
   };
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState(false);
+  const [certStatus, setCertStatus] = useState(null);
+
+  const refreshCertStatus = async () => {
+    if (!user?.id) return;
+    try {
+      const res = await api.getCertificateStatus();
+      setCertStatus(res);
+    } catch (err) {
+      console.warn('Could not load certificate status for profile:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    let isMounted = true;
+    api.getCertificateStatus()
+      .then((res) => {
+        if (isMounted) setCertStatus(res);
+      })
+      .catch((err) => {
+        console.warn('Could not load certificate status for profile:', err.message);
+      });
+
+    // Auto-refresh when user refocuses browser window or tab
+    const handleFocus = () => {
+      refreshCertStatus();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // Periodic polling every 12 seconds so admin eligibility updates appear live
+    const interval = setInterval(() => {
+      if (isMounted) refreshCertStatus();
+    }, 12000);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
+  }, [user?.id, location.pathname]);
 
   // If user is not authenticated, show sign-in prompt
   if (!user) {
@@ -172,11 +218,66 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
             <Receipt className="w-3.5 h-3.5 text-amber-500" />
             <span>Billing & Invoices</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('certificate')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === 'certificate'
+                ? 'dark:bg-black bg-white dark:text-white text-black dark:border-[#333333] border-neutral-300 border shadow-sm'
+                : 'dark:text-neutral-400 text-neutral-600 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5 text-amber-500" />
+            <span>Internship Certificate</span>
+            {certStatus?.eligible && (
+              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                certStatus?.certificate?.id && certStatus?.payment?.isPaid
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                  : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+              }`}>
+                {certStatus?.certificate?.id && certStatus?.payment?.isPaid ? 'Issued' : 'Eligible'}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
       {/* User Details Header Card */}
       <UserProfileHeader onEditProfile={() => setIsEditModalOpen(true)} />
+
+      {/* Prominent Certificate Claim Card if user is marked eligible */}
+      {certStatus?.eligible && activeTab !== 'certificate' && (
+        <div className="p-5 sm:p-6 rounded-2xl border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center shrink-0">
+              <Award className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white">
+                  Internship Certificate Ready to Claim
+                </h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30">
+                  {certStatus?.certificate?.id && certStatus?.payment?.isPaid ? 'Verified & Issued' : 'Eligible to Claim (₹100)'}
+                </span>
+              </div>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                Your verified completion certificate for <strong className="text-neutral-900 dark:text-white">{certStatus.programTitle}</strong> at <strong className="text-neutral-900 dark:text-white">{certStatus.organization || 'Kruu'}</strong> is available.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('certificate')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-sm transition-all shrink-0 hover:scale-[1.02] cursor-pointer"
+          >
+            <span>{certStatus?.certificate?.id && certStatus?.payment?.isPaid ? 'View & Download' : 'Pay ₹100 & Get Certificate'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Section 1: API Keys & Credentials */}
       {activeTab === 'keys' && (
@@ -239,6 +340,13 @@ export const ProfilePage = ({ onNavigateToMarketplace = null }) => {
             <CreditsBillingCard />
             <RedeemCouponCard />
           </div>
+        </div>
+      )}
+
+      {/* Section 5: Internship Certificate */}
+      {activeTab === 'certificate' && (
+        <div className="space-y-6">
+          <InternshipCertificateCard />
         </div>
       )}
 

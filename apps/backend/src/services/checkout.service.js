@@ -573,7 +573,49 @@ export async function processRazorpayWebhook(firstArg, secondArg, thirdArg) {
         }).catch((err) => {
           console.error("[Razorpay Webhook] Entitlement activation failed:", err.message);
         });
+      } else if (!order) {
+        // Check certificate_payment_orders to fulfill internship certificate payments
+        const certOrderQuery = await pool.query(
+          "SELECT id, user_id, status FROM certificate_payment_orders WHERE razorpay_order_id = $1;",
+          [rzpOrderId]
+        );
+        const certOrder = certOrderQuery.rows[0];
+        if (certOrder && certOrder.status !== "paid") {
+          const { verifyCertificatePayment } = await import("./certificate.service.js");
+          const effectiveSecret = env.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET || "";
+          const certSig = crypto
+            .createHmac("sha256", effectiveSecret)
+            .update(`${rzpOrderId}|${rzpPaymentId}`)
+            .digest("hex");
+
+          await verifyCertificatePayment({
+            userId: certOrder.user_id,
+            razorpayOrderId: rzpOrderId,
+            razorpayPaymentId: rzpPaymentId,
+            razorpaySignature: certSig,
+          }).catch((err) => {
+            console.error("[Razorpay Webhook] Certificate payment verification failed:", err.message);
+          });
+        }
       }
+    }
+  }
+
+  // 4. Process payment.failed to update order state and allow retry
+  if (eventType === "payment.failed") {
+    const paymentEntity = eventPayload.payload?.payment?.entity;
+    const rzpOrderId = paymentEntity?.order_id;
+    if (rzpOrderId) {
+      await pool.query(
+        "UPDATE certificate_payment_orders SET status = 'failed', updated_at = NOW() WHERE razorpay_order_id = $1 AND status != 'paid';",
+        [rzpOrderId]
+      ).catch(() => {});
+      await pool.query(
+        `UPDATE internship_certificate_eligibility SET status = 'payment_failed', updated_at = NOW()
+         WHERE id = (SELECT eligibility_id FROM certificate_payment_orders WHERE razorpay_order_id = $1)
+         AND status != 'issued' AND status != 'paid';`,
+        [rzpOrderId]
+      ).catch(() => {});
     }
   }
 

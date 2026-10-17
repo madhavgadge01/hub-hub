@@ -14,6 +14,8 @@ import toolsRoutes from "./routes/tools.routes.js";
 import marketplaceRoutes from "./routes/marketplace.routes.js";
 import checkoutRoutes from "./routes/checkout.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import certificateRoutes from "./routes/certificate.routes.js";
 import { handleRazorpayWebhook } from "./controllers/checkout.controller.js";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
@@ -28,9 +30,17 @@ app.use(
 );
 
 // CORS configuration supporting credentials and custom headers
-const allowedOrigins = env.corsOrigin
-  ? env.corsOrigin.split(",").map((o) => o.trim())
-  : ["http://localhost:5173", "http://localhost:3000"];
+const defaultOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:3000",
+  "https://kruu.online",
+  "https://admin.kruu.online",
+];
+
+const allowedOrigins = env.corsOrigin && env.corsOrigin !== "*"
+  ? env.corsOrigin.split(",").map((o) => o.trim()).concat(defaultOrigins)
+  : ["*"].concat(defaultOrigins);
 
 app.use(
   cors({
@@ -40,7 +50,10 @@ app.use(
       if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(null, true); // Permissive in dev, or specific origin
+      if (!env.isProduction) {
+        return callback(null, true); // Permissive in dev
+      }
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
@@ -88,6 +101,13 @@ app.use("/api/tools", toolsRoutes);
 app.use("/api/marketplace", marketplaceRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/profile", profileRoutes);
+
+// Private Admin Application APIs (Protected with requireAdmin)
+app.use("/api/admin", adminRoutes);
+
+// Internship Certificate Workflow APIs (Protected with verifyAuth)
+app.use("/api/certificates", certificateRoutes);
+app.use("/api/profile/certificate", certificateRoutes);
 
 // Protected Developer API endpoints (v1)
 app.use("/api/v1", developerRoutes);
